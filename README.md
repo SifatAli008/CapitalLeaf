@@ -71,7 +71,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database Configuration
-DATABASE_URL=your-local-database-connection-string
+DATABASE_URL=your-database-connection-string-here
 REDIS_URL=redis://localhost:6379
 
 # Security Configuration

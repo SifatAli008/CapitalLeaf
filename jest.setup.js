@@ -4,7 +4,7 @@
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-jwt-secret';
 process.env.ENCRYPTION_KEY = 'test-encryption-key';
-process.env.DATABASE_URL = 'your-test-database-connection-string';
+process.env.DATABASE_URL = 'your-database-connection-string-here';
 process.env.REDIS_URL = 'redis://localhost:6379/1';
 
 // Global test timeout

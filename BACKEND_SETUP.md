@@ -70,7 +70,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database Configuration
-DATABASE_URL=your-local-database-connection-string
+DATABASE_URL=your-database-connection-string-here
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
@@ -353,7 +353,7 @@ Ensure all production environment variables are set:
 
 ```env
 NODE_ENV=production
-DATABASE_URL=your-database-connection-string-here
+DATABASE_URL=your-production-database-connection-string
 JWT_SECRET=your-production-jwt-secret-key
 PORT=3000
 ```

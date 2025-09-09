@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.DATABASE_URL || 'your-local-database-connection-string';
+    const mongoURI = process.env.DATABASE_URL || 'your-database-connection-string-here';
     
     const options = {
       useNewUrlParser: true,

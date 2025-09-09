@@ -114,7 +114,7 @@ taskkill /f /im node.exe
 ### Database Connection Issues
 - Use the test server (`test-server.js`) for demo purposes
 - Install MongoDB locally or use MongoDB Atlas
-- Check your `.env` file for correct `MONGODB_URI`
+- Check your `.env` file for correct `DATABASE_URL`
 
 ## 📱 Frontend Testing
 
