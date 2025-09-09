@@ -118,7 +118,7 @@ class BehaviorAwareDLP {
           type: 'FINANCIAL_KEYWORD',
           severity: 'HIGH',
           description: `Financial keyword detected: ${keyword}`,
-          keyword: keyword,
+          keyword,
           score: 0.8
         });
       }
@@ -134,7 +134,7 @@ class BehaviorAwareDLP {
    * @returns {Object} Anomaly analysis
    */
   async detectBehavioralAnomaly(userId, transmissionData) {
-    const userBehavior = this.userBehaviors.get(userId) || this.initializeUserBehavior();
+    const _userBehavior = this.userBehaviors.get(userId) || this.initializeUserBehavior();
     
     let anomalyScore = 0;
 
@@ -262,7 +262,7 @@ class BehaviorAwareDLP {
       if (pattern.test(content)) {
         violations.push({
           type: 'DATA_CLASSIFICATION',
-          severity: severity,
+          severity,
           description: `Sensitive data detected: ${type}`,
           dataType: type,
           score: severity === 'CRITICAL' ? 0.9 : 0.6

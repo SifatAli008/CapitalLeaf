@@ -53,7 +53,7 @@ class SecureDataPipelines {
         rules: [
           { field: 'customer_id', type: 'string', pattern: /^CUST_\d+$/, required: true },
           { field: 'email', type: 'email', required: true },
-          { field: 'phone', type: 'string', pattern: /^\+?[\d\s\-\(\)]+$/, required: false },
+          { field: 'phone', type: 'string', pattern: /^\+?[\d\s\-()]+$/, required: false },
           { field: 'ssn', type: 'string', pattern: /^\d{3}-\d{2}-\d{4}$/, required: false, sensitive: true },
           { field: 'address', type: 'object', required: false }
         ]
@@ -451,7 +451,7 @@ class SecureDataPipelines {
    * @param {Object} context - Transfer context
    * @returns {Object} Transfer result
    */
-  async transferData(destination, data, context) {
+  async transferData(destination, data, _context) {
     try {
       // Simulate data transfer
       const transferId = `transfer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -528,7 +528,7 @@ class SecureDataPipelines {
    * @param {Object} context - Processing context
    * @returns {string} Risk level
    */
-  calculateRiskLevel(data, result, context) {
+  calculateRiskLevel(data, result, _context) {
     let riskScore = 0;
 
     // Check for sensitive data

@@ -348,7 +348,7 @@ class RoleBasedAccessControl {
    * @param {Object} context - Context
    * @returns {Object} Time restriction check result
    */
-  checkTimeRestrictions(userRole, vault, context) {
+  checkTimeRestrictions(userRole, vault, _context) {
     const result = {
       allowed: true,
       reason: '',
@@ -481,7 +481,7 @@ class RoleBasedAccessControl {
    * @param {string} userId - User ID
    * @param {string} action - Action
    */
-  updateVaultStats(vaultName, userId, action) {
+  updateVaultStats(vaultName, _userId, _action) {
     const vault = this.dataVaults.get(vaultName);
     if (vault) {
       vault.accessCount++;
