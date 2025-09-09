@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 // const bcrypt = require('bcryptjs');
 // const jwt = require('jsonwebtoken');
 // const mongoose = require('mongoose');
@@ -40,6 +41,34 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiting configurations
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs for auth endpoints
+  message: 'Too many authentication attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const sensitiveLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // limit each IP to 3 requests per windowMs for sensitive operations
+  message: 'Too many sensitive operations attempted, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general rate limiting to all routes
+app.use(generalLimiter);
 
 // Routes
 app.get('/', (req, res) => {
@@ -123,7 +152,7 @@ const isDeviceTrusted = (user, deviceFingerprint) => {
 };
 
 // Authentication API endpoints
-app.post('/api/auth/login', validate(loginSchema), async (req, res) => {
+app.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, res) => {
   try {
     const { username, password, userContext } = req.body;
     
@@ -203,7 +232,7 @@ app.post('/api/auth/login', validate(loginSchema), async (req, res) => {
 });
 
 // Registration endpoint
-app.post('/api/auth/register', validate(registrationSchema), async (req, res) => {
+app.post('/api/auth/register', authLimiter, validate(registrationSchema), async (req, res) => {
   try {
     const { username, email, firstName, lastName } = req.body;
 
@@ -264,7 +293,7 @@ app.post('/api/auth/register', validate(registrationSchema), async (req, res) =>
 });
 
 // MFA verification endpoint
-app.post('/api/auth/verify-mfa', validate(mfaSchema), async (req, res) => {
+app.post('/api/auth/verify-mfa', authLimiter, validate(mfaSchema), async (req, res) => {
   try {
     const { code } = req.body;
     
@@ -291,7 +320,7 @@ app.post('/api/auth/verify-mfa', validate(mfaSchema), async (req, res) => {
 });
 
 // Device registration endpoint
-app.post('/api/auth/register-device', validate(deviceRegistrationSchema), authenticate, async (req, res) => {
+app.post('/api/auth/register-device', sensitiveLimiter, validate(deviceRegistrationSchema), authenticate, async (req, res) => {
   try {
     const { deviceName, deviceInfo } = req.body;
     const user = req.user;
@@ -381,7 +410,7 @@ app.post('/api/auth/assess-risk', validate(riskAssessmentSchema), async (req, re
 });
 
 // User profile endpoint
-app.get('/api/auth/profile', authenticate, async (req, res) => {
+app.get('/api/auth/profile', sensitiveLimiter, authenticate, async (req, res) => {
   try {
     const user = req.user;
     res.json({
@@ -411,14 +440,25 @@ app.get('/api/auth/profile', authenticate, async (req, res) => {
 });
 
 // Update user profile endpoint
-app.put('/api/auth/profile', authenticate, async (req, res) => {
+app.put('/api/auth/profile', sensitiveLimiter, authenticate, async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
     const user = req.user;
 
     // Check if email is being changed and if it's already taken
     if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
+      // Validate email format to prevent injection
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+      
+      // Sanitize email and use parameterized query
+      const sanitizedEmail = email.toLowerCase().trim();
+      const existingUser = await User.findOne({ email: sanitizedEmail });
       if (existingUser) {
         return res.status(409).json({
           success: false,
@@ -427,10 +467,26 @@ app.put('/api/auth/profile', authenticate, async (req, res) => {
       }
     }
 
-    // Update user fields
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (email) user.email = email;
+    // Update user fields with sanitization
+    if (firstName) {
+      // Sanitize firstName - only allow letters, spaces, hyphens, and apostrophes
+      const sanitizedFirstName = firstName.trim().replace(/[^a-zA-Z\s\-']/g, '');
+      if (sanitizedFirstName.length > 0) {
+        user.firstName = sanitizedFirstName;
+      }
+    }
+    if (lastName) {
+      // Sanitize lastName - only allow letters, spaces, hyphens, and apostrophes
+      const sanitizedLastName = lastName.trim().replace(/[^a-zA-Z\s\-']/g, '');
+      if (sanitizedLastName.length > 0) {
+        user.lastName = sanitizedLastName;
+      }
+    }
+    if (email) {
+      // Use the already validated and sanitized email
+      const sanitizedEmail = email.toLowerCase().trim();
+      user.email = sanitizedEmail;
+    }
 
     await user.save();
 
@@ -456,7 +512,7 @@ app.put('/api/auth/profile', authenticate, async (req, res) => {
 });
 
 // Change password endpoint
-app.put('/api/auth/change-password', authenticate, async (req, res) => {
+app.put('/api/auth/change-password', sensitiveLimiter, authenticate, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const user = req.user;
@@ -502,7 +558,7 @@ app.put('/api/auth/change-password', authenticate, async (req, res) => {
 });
 
 // Get user devices endpoint
-app.get('/api/auth/devices', authenticate, async (req, res) => {
+app.get('/api/auth/devices', sensitiveLimiter, authenticate, async (req, res) => {
   try {
     const user = req.user;
     const devices = user.deviceFingerprints.map(device => ({
@@ -526,7 +582,7 @@ app.get('/api/auth/devices', authenticate, async (req, res) => {
 });
 
 // Logout endpoint (client-side token invalidation)
-app.post('/api/auth/logout', authenticate, async (req, res) => {
+app.post('/api/auth/logout', sensitiveLimiter, authenticate, async (req, res) => {
   try {
     // In a production environment, you would:
     // 1. Add the token to a blacklist

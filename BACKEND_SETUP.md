@@ -353,7 +353,7 @@ Ensure all production environment variables are set:
 
 ```env
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/capitalleaf
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/capitalleaf
 JWT_SECRET=your-production-jwt-secret-key
 PORT=3000
 ```
