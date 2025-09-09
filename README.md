@@ -227,3 +227,9 @@ For support and questions:
 ---
 
 **CapitalLeaf** - Protecting financial platforms with intelligent, behavior-driven security.
+
+## 🚀 CI/CD Pipeline Status
+- ✅ Automated testing and deployment active
+- ✅ Security scanning with Trivy
+- ✅ Quality gates enforced
+- ✅ Automatic Vercel deployment
