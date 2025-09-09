@@ -45,6 +45,13 @@ app.get('/', (req, res) => {
     message: 'CapitalLeaf: Dynamic Defense with Microservice Isolation',
     version: '1.0.0',
     status: 'operational',
+    branding: {
+      logo: {
+        capital: 'Capital',
+        leaf: 'Leaf',
+        description: 'Professional fintech security platform'
+      }
+    },
     features: [
       'Microservice Network Segmentation',
       'Behavior-Driven Data Loss Prevention',

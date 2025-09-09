@@ -35,19 +35,30 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-.logo i {
+.logo-text {
     font-size: 2.5rem;
-    color: #667eea;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -1px;
 }
 
-.logo h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #333;
+.capital-text {
+    color: #4a5568;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.leaf-text {
+    color: #3182ce;
+    font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+    font-weight: 400;
+    font-style: italic;
+    margin-left: -2px;
+    text-shadow: 1px 1px 2px rgba(49, 130, 206, 0.3);
 }
 
 .subtitle {
@@ -473,4 +484,20 @@ body {
 .security-status.danger {
     background: #f8d7da;
     color: #721c24;
+}
+
+/* Dashboard Logo Styling */
+.dashboard-logo {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.dashboard-logo .logo-text {
+    font-size: 1.8rem;
+}
+
+.dashboard-logo .subtitle {
+    font-size: 0.8rem;
+    color: #4a5568;
+    margin-top: 5px;
 }

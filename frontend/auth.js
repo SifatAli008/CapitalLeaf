@@ -19,6 +19,9 @@ class ZeroTrustAuth {
         // Set up global error handlers for browser extension conflicts
         this.setupErrorHandlers();
         
+        // Initialize CapitalLeaf logo
+        this.initializeLogo();
+        
         // Generate device fingerprint
         await this.deviceFingerprint.generateFingerprint();
         
@@ -27,6 +30,25 @@ class ZeroTrustAuth {
         
         // Check for existing session
         await this.checkExistingSession();
+    }
+
+    /**
+     * Initialize CapitalLeaf logo components
+     */
+    initializeLogo() {
+        // Initialize dashboard logo
+        if (window.CapitalLeafLogo) {
+            this.dashboardLogo = new CapitalLeafLogo('dashboardLogo', {
+                size: 'medium',
+                subtitle: 'Security Monitoring Center',
+                className: 'dashboard-logo'
+            });
+            
+            // Add subtle animation
+            setTimeout(() => {
+                this.dashboardLogo.addAnimation('fadeIn');
+            }, 100);
+        }
     }
 
     /**
