@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
 import DeviceFingerprint from '@/components/DeviceFingerprint';
-import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Shield, Eye, EyeOff, AlertCircle, Lock, User, ArrowRight, CreditCard, TrendingUp } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { login, isLoading, isAuthenticated } = useAuth();
+  const { login, isLoading, isAuthenticated, requires2FA } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -20,10 +20,15 @@ const LoginPage: React.FC = () => {
   const [deviceInfo, setDeviceInfo] = useState<any>(null);
 
   useEffect(() => {
+    console.log('Login page useEffect triggered:', { isAuthenticated, requires2FA });
     if (isAuthenticated) {
+      console.log('Login page: User is authenticated, redirecting to dashboard');
       router.push('/dashboard');
+    } else if (requires2FA) {
+      console.log('Login page: 2FA required, redirecting to verification page');
+      router.push('/verify-2fa');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, requires2FA, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +44,19 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    const success = await login(formData.username, formData.password, deviceInfo);
-    if (success) {
-      router.push('/dashboard');
+    console.log('Login page: Attempting login with username:', formData.username);
+    const result = await login(formData.username, formData.password, deviceInfo);
+    console.log('Login result:', result);
+    if (result.success) {
+      console.log('Login successful, checking 2FA requirement');
+      // Check if 2FA is required after login
+      if (result.requires2FA) {
+        console.log('2FA required, redirecting to verification page');
+        router.push('/verify-2fa');
+      } else {
+        console.log('No 2FA required, redirecting to dashboard');
+        router.push('/dashboard');
+      }
     } else {
       setError('Login failed. Please check your credentials.');
     }
@@ -56,117 +71,192 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-900 via-green-800 to-indigo-900 p-12 flex-col justify-between">
+        <div>
           <CapitalLeafLogo 
             size="large" 
-            subtitle="Zero Trust Security Framework"
+            subtitle="Secure Financial Technology"
             animated={true}
+            variant="light"
           />
+          <div className="mt-8 space-y-6">
+            <div className="flex items-center space-x-3 text-green-100">
+              <div className="p-2 bg-green-700 rounded-lg">
+                <Shield size={20} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Bank-Grade Security</h3>
+                <p className="text-sm text-green-200">256-bit encryption & zero-trust architecture</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 text-green-100">
+              <div className="p-2 bg-green-700 rounded-lg">
+                <TrendingUp size={20} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Real-Time Monitoring</h3>
+                <p className="text-sm text-green-200">AI-powered threat detection & risk assessment</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 text-green-100">
+              <div className="p-2 bg-green-700 rounded-lg">
+                <CreditCard size={20} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Financial Compliance</h3>
+                <p className="text-sm text-green-200">SOC 2, PCI DSS, and regulatory compliance</p>
+              </div>
+            </div>
+          </div>
         </div>
+        <div className="text-green-200 text-sm">
+          <p>© 2024 CapitalLeaf. All rights reserved.</p>
+        </div>
+      </div>
 
-        <DeviceFingerprint onFingerprintGenerated={setDeviceInfo} />
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              placeholder="Enter your username"
-              required
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <CapitalLeafLogo 
+              size="medium" 
+              subtitle="Secure Login"
+              animated={true}
             />
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                placeholder="Enter your password"
-                required
-              />
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <p className="text-gray-600">Sign in to your CapitalLeaf account</p>
+          </div>
+
+          <DeviceFingerprint onFingerprintGenerated={setDeviceInfo} />
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                  Username or Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white text-gray-900 placeholder-gray-500"
+                    placeholder="Enter your username or email"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white text-gray-900 placeholder-gray-500"
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberDevice"
+                  checked={rememberDevice}
+                  onChange={(e) => setRememberDevice(e.target.checked)}
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label htmlFor="rememberDevice" className="ml-2 block text-sm text-gray-700">
+                  Trust this device
+                </label>
+              </div>
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="text-sm text-green-600 hover:text-green-700 font-medium"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                Forgot password?
               </button>
             </div>
-          </div>
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="rememberDevice"
-              checked={rememberDevice}
-              onChange={(e) => setRememberDevice(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="rememberDevice" className="ml-2 block text-sm text-gray-700">
-              Trust this device
-            </label>
-          </div>
-
-          {error && (
-            <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
-              <AlertCircle size={20} />
-              <span className="text-sm">{error}</span>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading || !deviceInfo}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>Authenticating...</span>
-              </>
-            ) : (
-              <>
-                <Shield size={20} />
-                <span>Login Securely</span>
-              </>
+            {error && (
+              <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl border border-red-200">
+                <AlertCircle size={20} />
+                <span className="text-sm">{error}</span>
+              </div>
             )}
-          </button>
-        </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
             <button
-              onClick={() => router.push('/register')}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              type="submit"
+              disabled={isLoading || !deviceInfo}
+              className="w-full bg-gradient-to-r from-green-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-green-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg"
             >
-              Register here
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight size={20} />
+                </>
+              )}
             </button>
-          </p>
-        </div>
+          </form>
 
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials</h4>
-          <div className="text-xs text-blue-700 space-y-1">
-            <p><strong>Username:</strong> admin</p>
-            <p><strong>Password:</strong> 12345678</p>
-            <p className="text-blue-600 italic">Or use any username/password combination</p>
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <button
+                onClick={() => router.push('/register')}
+                className="text-green-600 hover:text-green-700 font-semibold transition-colors"
+              >
+                Create one here
+              </button>
+            </p>
+          </div>
+
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-indigo-50 rounded-xl border border-green-200">
+            <h4 className="text-sm font-semibold text-green-800 mb-2 flex items-center">
+              <Shield size={16} className="mr-2" />
+              Demo Access
+            </h4>
+            <div className="text-xs text-green-700 space-y-1">
+              <p><strong>Username:</strong> demo@capitalleaf.com</p>
+              <p><strong>Password:</strong> SecurePass123!</p>
+              <p className="text-green-600 italic mt-2">Or use any credentials to test the system</p>
+            </div>
           </div>
         </div>
       </div>

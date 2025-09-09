@@ -37,11 +37,14 @@ interface AuthContextType {
   session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string, deviceInfo: any) => Promise<boolean>;
+  requires2FA: boolean;
+  pendingUser: User | null;
+  login: (username: string, password: string, deviceInfo: any) => Promise<{ success: boolean; requires2FA: boolean }>;
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
   verifyMFA: (method: string, code: string) => Promise<boolean>;
   registerDevice: (deviceName: string) => Promise<boolean>;
+  complete2FA: (code: string) => Promise<boolean>;
 }
 
 interface RegisterData {
@@ -71,10 +74,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [pendingUser, setPendingUser] = useState<User | null>(null);
 
-  const isAuthenticated = !!user && !!session;
+  const isAuthenticated = !!user && !!session && !requires2FA;
 
-  const login = async (username: string, password: string, deviceInfo: any): Promise<boolean> => {
+  const login = async (username: string, password: string, deviceInfo: any): Promise<{ success: boolean; requires2FA: boolean }> => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/login', {
@@ -110,39 +115,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const result = await response.json();
+      console.log('AuthContext: API response:', result);
       
       if (result.success) {
-        setUser(result.user);
-        setSession(result.session);
-        return true;
+        // Check if 2FA is required
+        console.log('AuthContext: Checking requiresMFA =', result.session.requiresMFA);
+        if (result.session.requiresMFA) {
+          console.log('AuthContext: 2FA required, setting pending user');
+          console.log('AuthContext: Setting requires2FA = true, pendingUser =', result.user);
+          setRequires2FA(true);
+          setPendingUser(result.user);
+          return { success: true, requires2FA: true }; // Login successful but needs 2FA
+        } else {
+          console.log('AuthContext: No 2FA required, setting user and session');
+          setUser(result.user);
+          setSession(result.session);
+          setRequires2FA(false);
+          setPendingUser(null);
+          return { success: true, requires2FA: false };
+        }
       } else {
-        // Demo mode fallback
-        const mockSession: Session = {
-          sessionId: `demo_session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          riskScore: Math.random() * 0.4,
-          requiresMFA: false,
-          mfaMethods: [],
-          deviceTrusted: false,
-          behavioralAnomaly: { detected: false, anomalies: [], confidence: 0 },
-          riskFactors: {
-            device: 0.1,
-            location: 0.1,
-            transaction: 0.0,
-            time: 0.1,
-            network: 0.0,
-            velocity: 0.0
-          },
-          recommendations: [],
-          timestamp: new Date().toISOString()
-        };
-        
-        setUser({ id: username, username });
-        setSession(mockSession);
-        return true;
+        // Login failed - return error
+        console.log('AuthContext: Login failed - API returned success: false');
+        return { success: false, requires2FA: false };
       }
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return { success: false, requires2FA: false };
     } finally {
       setIsLoading(false);
     }
@@ -177,6 +176,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setSession(null);
+    setRequires2FA(false);
+    setPendingUser(null);
+  };
+
+  const complete2FA = async (code: string): Promise<boolean> => {
+    if (!pendingUser) {
+      console.log('🚨 complete2FA: No pending user - cannot complete 2FA');
+      return false;
+    }
+    
+    console.log(`🚨 complete2FA: Completing 2FA for user "${pendingUser.username}" with code "${code}"`);
+    
+    setIsLoading(true);
+    try {
+      // Simulate 2FA verification (in real app, this would verify with backend)
+      // Accept any 6-digit code for demo purposes
+      if (code && code.length === 6) {
+        console.log(`✅ complete2FA: Valid 6-digit code provided for user "${pendingUser.username}"`);
+        
+        // Create a mock session for the authenticated user
+        // Note: requiresMFA is false because 2FA has been completed for THIS SESSION
+        // The user still has 2FA enabled for future logins
+        const mockSession: Session = {
+          sessionId: `demo_session_${pendingUser.username}_${Date.now()}`,
+          riskScore: 0.15, // Fixed value to avoid hydration mismatch
+          requiresMFA: false, // 2FA completed for this session
+          mfaMethods: ['google_authenticator'], // User still has 2FA enabled
+          deviceTrusted: false,
+          behavioralAnomaly: { detected: false, anomalies: [], confidence: 0 },
+          riskFactors: {
+            device: 0.1,
+            location: 0.1,
+            transaction: 0.0,
+            time: 0.1,
+            network: 0.0,
+            velocity: 0.0
+          },
+          recommendations: [],
+          timestamp: new Date().toISOString()
+        };
+        
+        console.log(`✅ complete2FA: Setting user and session for "${pendingUser.username}"`);
+        setUser(pendingUser);
+        setSession(mockSession);
+        setRequires2FA(false);
+        setPendingUser(null);
+        return true;
+      } else {
+        console.log(`❌ complete2FA: Invalid code "${code}" - must be 6 digits`);
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ complete2FA: Error completing 2FA:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const verifyMFA = async (method: string, code: string): Promise<boolean> => {
@@ -200,7 +256,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('MFA verification error:', error);
       // Demo mode - accept any 6-digit code
-      return code && code.length === 6;
+      return Boolean(code && code.length === 6);
     }
   };
 
@@ -237,11 +293,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     session,
     isAuthenticated,
     isLoading,
+    requires2FA,
+    pendingUser,
     login,
     register,
     logout,
     verifyMFA,
-    registerDevice
+    registerDevice,
+    complete2FA
   };
 
   return (
