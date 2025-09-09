@@ -3,11 +3,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 
-// Import security components (for future use)
-// const ZeroTrustAccessControl = require('./components/infiltration/zeroTrustAccess');
-// const AIIntrusionDetection = require('./components/infiltration/intrusionDetection');
-// const MicroserviceIsolation = require('./components/propagation/microserviceIsolation');
-// const BehaviorAwareDLP = require('./components/exfiltration/behaviorDLP');
+// Import security components
+const ZeroTrustAccessControl = require('./components/infiltration/zeroTrustAccess');
+const AIIntrusionDetection = require('./components/infiltration/intrusionDetection');
+const MicroserviceIsolation = require('./components/propagation/microserviceIsolation');
+const BehaviorAwareDLP = require('./components/exfiltration/behaviorDLP');
 const RoleBasedAccessControl = require('./components/aggregation/roleBasedAccess');
 const SecureDataPipelines = require('./components/aggregation/secureDataPipelines');
 const ThreatIntelligenceService = require('./services/threatIntelligence');
@@ -15,16 +15,20 @@ const ThreatIntelligenceService = require('./services/threatIntelligence');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize security components (for future use)
-// const zeroTrustAccess = new ZeroTrustAccessControl();
-// const intrusionDetection = new AIIntrusionDetection();
-// const microserviceIsolation = new MicroserviceIsolation();
-// const behaviorDLP = new BehaviorAwareDLP();
+// Initialize security components
+const zeroTrustAccess = new ZeroTrustAccessControl();
+const intrusionDetection = new AIIntrusionDetection();
+const microserviceIsolation = new MicroserviceIsolation();
+const behaviorDLP = new BehaviorAwareDLP();
 const roleBasedAccess = new RoleBasedAccessControl();
 const secureDataPipelines = new SecureDataPipelines();
 const threatIntelligence = new ThreatIntelligenceService();
 
 // Initialize components
+zeroTrustAccess.initialize();
+intrusionDetection.initialize();
+microserviceIsolation.initialize();
+behaviorDLP.initialize();
 roleBasedAccess.initialize();
 secureDataPipelines.initialize();
 threatIntelligence.initialize();
@@ -67,11 +71,120 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     components: {
+      zeroTrustAccess: 'active',
+      intrusionDetection: 'active',
+      microserviceIsolation: 'active',
+      behaviorDLP: 'active',
       roleBasedAccess: 'active',
       secureDataPipelines: 'active',
       threatIntelligence: 'active'
     }
   });
+});
+
+// Authentication API endpoints
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password, userContext } = req.body;
+    
+    // Basic authentication (in production, use proper authentication)
+    if (username && password) {
+      // Verify access with Zero Trust Access Control
+      const accessDecision = await zeroTrustAccess.verifyAccess(userContext);
+      
+      res.json({
+        success: true,
+        user: { username, id: username },
+        session: accessDecision,
+        message: 'Authentication successful'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Username and password are required'
+      });
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Authentication failed'
+    });
+  }
+});
+
+// MFA verification endpoint
+app.post('/api/auth/verify-mfa', async (req, res) => {
+  try {
+    const { sessionId, method, code } = req.body;
+    
+    // Simple MFA verification (in production, use proper MFA service)
+    if (code && code.length === 6) {
+      res.json({
+        success: true,
+        message: 'MFA verification successful'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid verification code'
+      });
+    }
+  } catch (error) {
+    console.error('MFA verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'MFA verification failed'
+    });
+  }
+});
+
+// Device registration endpoint
+app.post('/api/auth/register-device', async (req, res) => {
+  try {
+    const { sessionId, deviceName, deviceInfo } = req.body;
+    
+    // Register trusted device
+    zeroTrustAccess.registerTrustedDevice(deviceInfo.fingerprint, {
+      name: deviceName,
+      ...deviceInfo
+    });
+    
+    res.json({
+      success: true,
+      message: 'Device registered successfully'
+    });
+  } catch (error) {
+    console.error('Device registration error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Device registration failed'
+    });
+  }
+});
+
+// Risk assessment endpoint
+app.post('/api/auth/assess-risk', async (req, res) => {
+  try {
+    const { userContext, transactionContext } = req.body;
+    
+    const riskScore = await zeroTrustAccess.calculateFintechRiskScore(userContext, transactionContext);
+    const riskFactors = zeroTrustAccess.getRiskFactors(userContext, transactionContext);
+    const recommendations = zeroTrustAccess.getSecurityRecommendations(riskScore);
+    
+    res.json({
+      riskScore,
+      riskFactors,
+      recommendations,
+      requiresMFA: riskScore > 0.5
+    });
+  } catch (error) {
+    console.error('Risk assessment error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Risk assessment failed'
+    });
+  }
 });
 
 // Aggregation Component API Routes
