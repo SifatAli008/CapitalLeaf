@@ -26,7 +26,11 @@ body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: normal;
   line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
+
+/* Custom CapitalLeaf styles */
 
 /* Fintech-specific styles */
 .fintech-gradient {
