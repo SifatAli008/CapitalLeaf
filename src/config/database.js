@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/capitalleaf';
+    const mongoURI = process.env.DATABASE_URL || 'mongodb://localhost:27017/capitalleaf';
     
     const options = {
       useNewUrlParser: true,

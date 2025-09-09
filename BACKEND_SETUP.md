@@ -70,7 +70,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database Configuration
-MONGODB_URI=mongodb://localhost:27017/capitalleaf
+DATABASE_URL=mongodb://localhost:27017/capitalleaf
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
@@ -87,7 +87,7 @@ Make sure MongoDB is running on your system:
 mongod
 
 # Or use MongoDB Atlas (cloud)
-# Update MONGODB_URI in .env with your Atlas connection string
+# Update DATABASE_URL in .env with your Atlas connection string
 ```
 
 ### 4. Start the Server
@@ -353,7 +353,7 @@ Ensure all production environment variables are set:
 
 ```env
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/capitalleaf
+DATABASE_URL=your-database-connection-string-here
 JWT_SECRET=your-production-jwt-secret-key
 PORT=3000
 ```
