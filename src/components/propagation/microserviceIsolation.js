@@ -414,6 +414,14 @@ class MicroserviceIsolation {
     
     return statuses;
   }
+
+  /**
+   * Initialize Microservice Isolation
+   */
+  initialize() {
+    console.log('🔒 Initializing Microservice Isolation...');
+    console.log('✅ Microservice Isolation initialized');
+  }
 }
 
 module.exports = MicroserviceIsolation;

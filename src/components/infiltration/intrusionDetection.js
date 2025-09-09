@@ -325,6 +325,14 @@ class AIIntrusionDetection {
     
     this.accessPatterns.set(accessKey, pattern);
   }
+
+  /**
+   * Initialize AI Intrusion Detection
+   */
+  initialize() {
+    console.log('🤖 Initializing AI Intrusion Detection...');
+    console.log('✅ AI Intrusion Detection initialized');
+  }
 }
 
 module.exports = AIIntrusionDetection;

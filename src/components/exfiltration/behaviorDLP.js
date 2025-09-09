@@ -492,6 +492,14 @@ class BehaviorAwareDLP {
     if (riskScore < 0.8) return 'HIGH';
     return 'CRITICAL';
   }
+
+  /**
+   * Initialize Behavior-Aware DLP
+   */
+  initialize() {
+    console.log('📊 Initializing Behavior-Aware DLP...');
+    console.log('✅ Behavior-Aware DLP initialized');
+  }
 }
 
 module.exports = BehaviorAwareDLP;
