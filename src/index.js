@@ -1,16 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
+// const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Import available services
 const ThreatIntelligenceService = require('./services/threatIntelligence');
 
 // Import database and utilities
-const connectDB = require('./config/database');
+// const connectDB = require('./config/database');
 const User = require('./models/User');
 const { generateTokenPair } = require('./utils/jwt');
 const { authenticate } = require('./middleware/auth');
@@ -132,9 +132,9 @@ app.post('/api/auth/login', validate(loginSchema), async (req, res) => {
     if (username && password) {
       // Generate mock user data
       const mockUser = {
-        _id: 'demo_user_' + Date.now(),
-        username: username,
-        email: username + '@example.com',
+        _id: `demo_user_${Date.now()}`,
+        username,
+        email: `${username}@example.com`,
         firstName: 'Demo',
         lastName: 'User',
         role: 'user',
@@ -205,14 +205,14 @@ app.post('/api/auth/login', validate(loginSchema), async (req, res) => {
 // Registration endpoint
 app.post('/api/auth/register', validate(registrationSchema), async (req, res) => {
   try {
-    const { username, email, password, firstName, lastName } = req.body;
+    const { username, email, firstName, lastName } = req.body;
 
     // Demo mode: Always succeed registration
     // In production, this would check database and create user
     const mockUser = {
-      _id: 'demo_user_' + Date.now(),
-      username: username,
-      email: email,
+      _id: `demo_user_${Date.now()}`,
+      username,
+      email,
       firstName: firstName,
       lastName: lastName,
       role: 'user',
