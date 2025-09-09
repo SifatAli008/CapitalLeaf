@@ -1,4 +1,6 @@
-/* Custom CSS for CapitalLeaf */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -10,6 +12,13 @@
   --border-gray: #e2e8f0;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -17,14 +26,113 @@ body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: normal;
   line-height: 1.6;
-  margin: 0;
-  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Fintech-specific styles */
+.fintech-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.fintech-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.fintech-input {
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.fintech-input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: white;
+}
+
+.fintech-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.fintech-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.fintech-button:hover::before {
+  left: 100%;
+}
+
+/* Custom CapitalLeaf Logo Styles */
+.logo-text {
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -1px;
+}
+
+.capital-text {
+  color: #4a5568;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.leaf-text {
+  color: #3182ce;
+  font-weight: 400;
+  font-style: italic;
+  margin-left: -2px;
+  text-shadow: 1px 1px 2px rgba(49, 130, 206, 0.3);
+}
+
+/* Animation classes */
+.logo-fadeIn {
+  animation: logoFadeIn 1s ease-in-out;
+}
+
+.logo-pulse {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+.logo-glow {
+  animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes logoGlow {
+  from {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  to {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 20px rgba(49, 130, 206, 0.3);
   }
 }
 

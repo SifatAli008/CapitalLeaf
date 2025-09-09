@@ -1,67 +1,62 @@
-'use client';
-
 import React from 'react';
 
 interface CapitalLeafLogoProps {
-  size?: 'small' | 'medium' | 'large' | 'xlarge';
-  showSubtitle?: boolean;
-  subtitle?: string;
+  variant?: 'default' | 'light' | 'dark';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
-  animated?: boolean;
-  variant?: 'default' | 'light';
 }
 
-const CapitalLeafLogo: React.FC<CapitalLeafLogoProps> = ({
-  size = 'large',
-  showSubtitle = true,
-  subtitle = 'Zero Trust Security Framework',
-  className = '',
-  animated = false,
-  variant = 'default'
+const CapitalLeafLogo: React.FC<CapitalLeafLogoProps> = ({ 
+  variant = 'default', 
+  size = 'md', 
+  className = '' 
 }) => {
-  const getSizeClasses = () => {
-    switch (size) {
-      case 'small':
-        return 'text-xl';
-      case 'medium':
-        return 'text-2xl';
-      case 'large':
-        return 'text-4xl';
-      case 'xlarge':
-        return 'text-6xl';
+  const getTextColors = () => {
+    switch (variant) {
+      case 'light':
+        return {
+          capital: 'text-white',
+          leaf: 'text-green-300'
+        };
+      case 'dark':
+        return {
+          capital: 'text-gray-800',
+          leaf: 'text-green-600'
+        };
       default:
-        return 'text-4xl';
+        return {
+          capital: 'text-gray-800',
+          leaf: 'text-green-600'
+        };
     }
   };
 
-  const getTextColors = () => {
-    if (variant === 'light') {
-      return {
-        capital: 'text-white',
-        leaf: 'text-green-300',
-        subtitle: 'text-blue-200'
-      };
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'sm':
+        return 'text-lg';
+      case 'md':
+        return 'text-2xl';
+      case 'lg':
+        return 'text-3xl';
+      case 'xl':
+        return 'text-4xl';
+      default:
+        return 'text-2xl';
     }
-    return {
-      capital: 'text-slate-700',
-      leaf: 'text-green-600',
-      subtitle: 'text-gray-600'
-    };
   };
 
   const colors = getTextColors();
+  const sizeClass = getSizeClasses();
 
   return (
-    <div className={`flex flex-col items-center justify-center ${className}`}>
-      <div className={`${getSizeClasses()} font-bold tracking-tight ${animated ? 'animate-pulse' : ''}`}>
-        <span className={`${colors.capital} font-semibold font-sans`}>Capital</span>
-        <span className={`${colors.leaf} font-normal italic font-serif ml-[-2px]`}>Leaf</span>
-      </div>
-      {showSubtitle && (
-        <p className={`text-sm ${colors.subtitle} mt-2 font-medium`}>
-          {subtitle}
-        </p>
-      )}
+    <div className={`flex items-center ${className}`}>
+      <span className={`${sizeClass} font-bold logo-text ${colors.capital}`}>
+        Capital
+      </span>
+      <span className={`${sizeClass} font-bold logo-text ${colors.leaf}`}>
+        Leaf
+      </span>
     </div>
   );
 };
