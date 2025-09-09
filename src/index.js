@@ -213,8 +213,8 @@ app.post('/api/auth/register', validate(registrationSchema), async (req, res) =>
       _id: `demo_user_${Date.now()}`,
       username,
       email,
-      firstName: firstName,
-      lastName: lastName,
+      firstName,
+      lastName,
       role: 'user',
       mfaEnabled: false,
       createdAt: new Date()
@@ -266,7 +266,7 @@ app.post('/api/auth/register', validate(registrationSchema), async (req, res) =>
 // MFA verification endpoint
 app.post('/api/auth/verify-mfa', validate(mfaSchema), async (req, res) => {
   try {
-    const { sessionId, method, code } = req.body;
+    const { code } = req.body;
     
     // In production, verify the MFA code against the user's MFA secret
     // For demo purposes, accept any 6-digit code
@@ -551,7 +551,7 @@ app.post('/api/auth/logout', authenticate, async (req, res) => {
 // Role-Based Access Control endpoints
 app.post('/api/access/check', async (req, res) => {
   try {
-    const { userId, userRole, vaultName, action, context } = req.body;
+    // const { userId, userRole, vaultName, action, context } = req.body;
     // Simple access check (in production, use proper RBAC)
     const result = {
       allowed: true,
@@ -613,7 +613,7 @@ app.get('/api/access/vault/:vaultName/summary', (req, res) => {
 // Secure Data Pipelines endpoints
 app.post('/api/pipeline/process', async (req, res) => {
   try {
-    const { pipelineName, data, context } = req.body;
+    const { pipelineName, data } = req.body;
     // Simple data processing (in production, use proper pipeline)
     const result = {
       success: true,
