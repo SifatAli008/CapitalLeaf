@@ -136,7 +136,7 @@ class ThreatIntelligenceService {
             threatName: threat.name,
             threatType: threat.type,
             severity: threat.severity,
-            indicator: indicator,
+            indicator,
             confidence: threat.confidence,
             description: `Threat indicator "${indicator}" detected in activity`
           });

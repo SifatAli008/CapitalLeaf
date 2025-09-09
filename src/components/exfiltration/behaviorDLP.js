@@ -134,7 +134,8 @@ class BehaviorAwareDLP {
    * @returns {Object} Anomaly analysis
    */
   async detectBehavioralAnomaly(userId, transmissionData) {
-    const _userBehavior = this.userBehaviors.get(userId) || this.initializeUserBehavior();
+    // Get user behavior pattern for analysis
+    this.userBehaviors.get(userId) || this.initializeUserBehavior();
     
     let anomalyScore = 0;
 
@@ -277,7 +278,7 @@ class BehaviorAwareDLP {
         type: 'DESTINATION_RESTRICTION',
         severity: 'HIGH',
         description: 'Transmission to restricted destination',
-        destination: destination,
+        destination,
         score: 0.7
       });
     }
@@ -383,7 +384,7 @@ class BehaviorAwareDLP {
    * @param {Object} transmissionData - Transmission data
    * @param {Object} analysis - Analysis result
    */
-  updateUserBehavior(userId, transmissionData, analysis) {
+  updateUserBehavior(userId, transmissionData, _analysis) {
     const userBehavior = this.userBehaviors.get(userId) || this.initializeUserBehavior();
 
     // Update destinations

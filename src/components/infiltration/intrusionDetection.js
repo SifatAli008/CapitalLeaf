@@ -276,7 +276,7 @@ class AIIntrusionDetection {
    * @param {Object} loginAttempt - Login attempt
    * @param {number} anomalyScore - Anomaly score
    */
-  updateUserPattern(userId, loginAttempt, anomalyScore) {
+  updateUserPattern(userId, loginAttempt, _anomalyScore) {
     const pattern = this.loginPatterns.get(userId) || this.initializeUserPattern();
     
     pattern.loginTimes.push(loginAttempt.timestamp);
@@ -304,7 +304,7 @@ class AIIntrusionDetection {
    * @param {Object} accessAttempt - Access attempt
    * @param {number} anomalyScore - Anomaly score
    */
-  updateAccessPattern(accessKey, accessAttempt, anomalyScore) {
+  updateAccessPattern(accessKey, accessAttempt, _anomalyScore) {
     const pattern = this.accessPatterns.get(accessKey) || this.initializeAccessPattern();
     
     pattern.accessTimes.push(accessAttempt.timestamp);

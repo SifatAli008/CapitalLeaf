@@ -3,11 +3,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 
-// Import security components
-const ZeroTrustAccessControl = require('./components/infiltration/zeroTrustAccess');
-const AIIntrusionDetection = require('./components/infiltration/intrusionDetection');
-const MicroserviceIsolation = require('./components/propagation/microserviceIsolation');
-const BehaviorAwareDLP = require('./components/exfiltration/behaviorDLP');
+// Import security components (for future use)
+// const ZeroTrustAccessControl = require('./components/infiltration/zeroTrustAccess');
+// const AIIntrusionDetection = require('./components/infiltration/intrusionDetection');
+// const MicroserviceIsolation = require('./components/propagation/microserviceIsolation');
+// const BehaviorAwareDLP = require('./components/exfiltration/behaviorDLP');
 const RoleBasedAccessControl = require('./components/aggregation/roleBasedAccess');
 const SecureDataPipelines = require('./components/aggregation/secureDataPipelines');
 const ThreatIntelligenceService = require('./services/threatIntelligence');
@@ -15,11 +15,11 @@ const ThreatIntelligenceService = require('./services/threatIntelligence');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize security components
-const zeroTrustAccess = new ZeroTrustAccessControl();
-const intrusionDetection = new AIIntrusionDetection();
-const microserviceIsolation = new MicroserviceIsolation();
-const behaviorDLP = new BehaviorAwareDLP();
+// Initialize security components (for future use)
+// const zeroTrustAccess = new ZeroTrustAccessControl();
+// const intrusionDetection = new AIIntrusionDetection();
+// const microserviceIsolation = new MicroserviceIsolation();
+// const behaviorDLP = new BehaviorAwareDLP();
 const roleBasedAccess = new RoleBasedAccessControl();
 const secureDataPipelines = new SecureDataPipelines();
 const threatIntelligence = new ThreatIntelligenceService();
@@ -198,7 +198,7 @@ app.get('/api/threats/summary', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({
     error: 'Internal Server Error',
@@ -216,9 +216,9 @@ app.use('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🛡️  CapitalLeaf Security Framework running on port ${PORT}`);
-  console.log(`🔒 Dynamic Defense with Microservice Isolation active`);
-  console.log(`📊 Behavior-Driven Protection enabled`);
-  console.log(`🎯 Live Threat Intelligence monitoring`);
+  console.log('🔒 Dynamic Defense with Microservice Isolation active');
+  console.log('📊 Behavior-Driven Protection enabled');
+  console.log('🎯 Live Threat Intelligence monitoring');
 });
 
 module.exports = app;
