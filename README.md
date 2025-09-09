@@ -209,12 +209,20 @@ The framework automatically:
 
 This project is licensed under the GPL-2.0 License - see the [LICENSE](LICENSE) file for details.
 
+## 📚 Documentation
+
+- **[VERCEL_SETUP.md](VERCEL_SETUP.md)** - Complete Vercel deployment setup guide
+- **[GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)** - GitHub secrets configuration guide
+- **[VERCEL_TROUBLESHOOTING.md](VERCEL_TROUBLESHOOTING.md)** - Troubleshooting common Vercel issues
+- **[CICD.md](CICD.md)** - CI/CD pipeline documentation
+
 ## 🆘 Support
 
 For support and questions:
 - Create an issue on GitHub
-- Check the documentation
+- Check the documentation above
 - Review the security guidelines
+- Use helper script: `npm run vercel:credentials`
 
 ## 🔮 Roadmap
 

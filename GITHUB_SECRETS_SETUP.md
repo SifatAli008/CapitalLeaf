@@ -1,94 +1,339 @@
-# GitHub Secrets Setup for CI/CD 🚀
+# 🔐 GitHub Secrets Configuration Guide
 
-Your CapitalLeaf project is ready for automated CI/CD deployment! Here are the exact steps to configure the required secrets.
+This guide provides step-by-step instructions for configuring GitHub secrets required for CapitalLeaf's CI/CD pipeline with Vercel deployment.
 
-## 🔐 Required Secrets
+## 📋 Table of Contents
 
-You need to add these **3 secrets** to your GitHub repository:
+- [Overview](#overview)
+- [Required Secrets](#required-secrets)
+- [Step-by-Step Setup](#step-by-step-setup)
+- [Verification](#verification)
+- [Troubleshooting](#troubleshooting)
+- [Security Best Practices](#security-best-practices)
 
-### 1. VERCEL_TOKEN
-- **Value**: Get from [https://vercel.com/account/tokens](https://vercel.com/account/tokens)
-- **Steps**: 
-  1. Go to Vercel Dashboard → Account Settings → Tokens
-  2. Click "Create Token"
-  3. Name it "CapitalLeaf CI/CD"
-  4. Copy the generated token
+## 🎯 Overview
 
-### 2. VERCEL_ORG_ID
-- **Value**: `team_9eEABLbyiHLdJRpp2L5GTlZF`
-- **Source**: Your Vercel organization ID
+GitHub Secrets are encrypted environment variables that allow your GitHub Actions workflows to access sensitive information securely. For CapitalLeaf's CI/CD pipeline, you need to configure three specific secrets for Vercel deployment.
 
-### 3. VERCEL_PROJECT_ID
-- **Value**: `prj_De3cGA6JkKs90PaSswIgX0TRl1Of`
-- **Source**: Your CapitalLeaf project ID
+## 🔑 Required Secrets
 
-## 📋 Step-by-Step Configuration
+| Secret Name | Description | Purpose |
+|-------------|-------------|---------|
+| `VERCEL_TOKEN` | Vercel API access token | Authenticate with Vercel API |
+| `VERCEL_ORG_ID` | Vercel organization/team ID | Identify your Vercel team |
+| `VERCEL_PROJECT_ID` | Vercel project ID | Target specific project for deployment |
 
-### Step 1: Go to GitHub Secrets
-Click this link: [https://github.com/SifatAli008/CapitalLeaf/settings/secrets/actions](https://github.com/SifatAli008/CapitalLeaf/settings/secrets/actions)
+## 📝 Step-by-Step Setup
 
-### Step 2: Add Each Secret
-For each secret below, click **"New repository secret"**:
+### Step 1: Get Vercel Token
 
-#### Secret 1: VERCEL_TOKEN
-- **Name**: `VERCEL_TOKEN`
-- **Value**: [Your token from Vercel dashboard]
-- **Click**: "Add secret"
+1. **Login to Vercel Dashboard**
+   - Go to [vercel.com](https://vercel.com)
+   - Sign in with your account
 
-#### Secret 2: VERCEL_ORG_ID
-- **Name**: `VERCEL_ORG_ID`
-- **Value**: `team_9eEABLbyiHLdJRpp2L5GTlZF`
-- **Click**: "Add secret"
+2. **Navigate to Tokens Page**
+   - Click on your profile icon (top right)
+   - Select **"Settings"**
+   - Go to **"Tokens"** tab
 
-#### Secret 3: VERCEL_PROJECT_ID
-- **Name**: `VERCEL_PROJECT_ID`
-- **Value**: `prj_De3cGA6JkKs90PaSswIgX0TRl1Of`
-- **Click**: "Add secret"
+3. **Create New Token**
+   - Click **"Create Token"**
+   - **Name**: `CapitalLeaf-CI-CD`
+   - **Scope**: Select **"Full Account"**
+   - **Expiration**: Choose appropriate duration (recommend 1 year)
+   - Click **"Create Token"**
+
+4. **Copy Token**
+   - ⚠️ **Important**: Copy the token immediately
+   - Tokens are only shown once
+   - Store it securely
+
+### Step 2: Get Organization ID
+
+1. **Go to Account Settings**
+   - Visit [vercel.com/account](https://vercel.com/account)
+   - Or click profile → **"Account"**
+
+2. **Find Team ID**
+   - Look for **"Team ID"** in the account information
+   - Copy the ID (format: `team_xxxxxxxxxxxxxxxx`)
+
+3. **Alternative Method**
+   - Use the helper script: `npm run vercel:credentials`
+   - It will display your organization information
+
+### Step 3: Get Project ID
+
+1. **Go to Project Dashboard**
+   - Visit [vercel.com/dashboard](https://vercel.com/dashboard)
+   - Find your CapitalLeaf project
+
+2. **Get Project ID**
+   - Click on the project
+   - Go to **"Settings"** tab
+   - Find **"Project ID"** (format: `prj_xxxxxxxxxxxxxxxx`)
+
+3. **Alternative Method**
+   - Use the helper script: `npm run vercel:credentials`
+   - It will display your project information
+
+### Step 4: Add Secrets to GitHub
+
+1. **Go to Repository Settings**
+   - Navigate to your GitHub repository
+   - Click **"Settings"** tab
+
+2. **Access Secrets Section**
+   - In the left sidebar, find **"Security"**
+   - Click **"Secrets and variables"**
+   - Select **"Actions"**
+
+3. **Add First Secret: VERCEL_TOKEN**
+   - Click **"New repository secret"**
+   - **Name**: `VERCEL_TOKEN`
+   - **Secret**: Paste your Vercel token
+   - Click **"Add secret"**
+
+4. **Add Second Secret: VERCEL_ORG_ID**
+   - Click **"New repository secret"**
+   - **Name**: `VERCEL_ORG_ID`
+   - **Secret**: Paste your organization ID
+   - Click **"Add secret"**
+
+5. **Add Third Secret: VERCEL_PROJECT_ID**
+   - Click **"New repository secret"**
+   - **Name**: `VERCEL_PROJECT_ID`
+   - **Secret**: Paste your project ID
+   - Click **"Add secret"**
 
 ## ✅ Verification
 
-After adding all secrets, you should see:
-- ✅ `VERCEL_TOKEN` in your secrets list
-- ✅ `VERCEL_ORG_ID` in your secrets list
-- ✅ `VERCEL_PROJECT_ID` in your secrets list
+### Method 1: Check GitHub Secrets
 
-## 🚀 Test CI/CD Pipeline
+1. **Go to Repository Settings**
+   - Navigate to **Settings** → **Secrets and variables** → **Actions**
+   - Verify all three secrets are listed:
+     - ✅ `VERCEL_TOKEN`
+     - ✅ `VERCEL_ORG_ID`
+     - ✅ `VERCEL_PROJECT_ID`
 
-Once secrets are configured:
+### Method 2: Test CI/CD Pipeline
 
-1. **Make a small change** to your code
-2. **Commit and push** to main branch
-3. **Check GitHub Actions** tab for automatic deployment
-4. **Verify deployment** at [https://capital-leaf.vercel.app/](https://capital-leaf.vercel.app/)
+1. **Make a Small Change**
+   - Edit `README.md` or any file
+   - Commit and push to `main` branch
 
-## 🔍 Expected Results
+2. **Check GitHub Actions**
+   - Go to **Actions** tab in your repository
+   - Look for the workflow run
+   - Verify it completes successfully
 
-Your CI/CD pipeline will:
-- ✅ **Automatically test** your code on every push
-- ✅ **Deploy to staging** on `develop` branch
-- ✅ **Deploy to production** on `main` branch
-- ✅ **Run security scans** and quality checks
-- ✅ **Provide deployment URLs** in GitHub Actions logs
+3. **Check Vercel Deployment**
+   - Go to [vercel.com/dashboard](https://vercel.com/dashboard)
+   - Verify new deployment appears
+   - Check deployment status
 
-## 🛠️ Troubleshooting
+### Method 3: Use Helper Script
 
-### If deployment fails:
-1. Check GitHub Actions logs for errors
-2. Verify all 3 secrets are correctly added
-3. Ensure Vercel token has proper permissions
-4. Check Vercel dashboard for deployment status
+```bash
+npm run vercel:credentials
+```
 
-### If secrets are not working:
-1. Double-check secret names (case-sensitive)
-2. Verify token is valid and not expired
-3. Ensure organization and project IDs are correct
+This script will:
+- Check Vercel CLI installation
+- Verify login status
+- Display your organization and project information
+- Generate a template for GitHub secrets
 
-## 📞 Support
+## 🔧 Troubleshooting
 
-- **GitHub Actions**: Check the Actions tab in your repository
-- **Vercel Dashboard**: Monitor deployments at [vercel.com/dashboard](https://vercel.com/dashboard)
-- **Documentation**: See `VERCEL_SETUP.md` for detailed instructions
+### Common Issues
+
+#### 1. "Context access might be invalid" Warning
+
+**Problem**: IDE shows warnings about invalid context access
+**Solution**: These are just IDE warnings. The secrets work correctly in GitHub Actions.
+
+#### 2. "Project not found" Error
+
+**Problem**: Vercel can't find your project
+**Solutions**:
+- Verify `VERCEL_PROJECT_ID` is correct
+- Check project exists in Vercel dashboard
+- Ensure you have access to the project
+
+#### 3. "Invalid token" Error
+
+**Problem**: Vercel token is invalid
+**Solutions**:
+- Generate new token in Vercel dashboard
+- Update `VERCEL_TOKEN` in GitHub secrets
+- Check token permissions and expiration
+
+#### 4. "Organization not found" Error
+
+**Problem**: Vercel can't find your organization
+**Solutions**:
+- Verify `VERCEL_ORG_ID` is correct
+- Check organization exists in Vercel
+- Ensure you're a member of the organization
+
+### Debug Steps
+
+1. **Check Vercel CLI**
+   ```bash
+   vercel --version
+   vercel whoami
+   ```
+
+2. **List Projects**
+   ```bash
+   vercel ls
+   ```
+
+3. **Check Teams**
+   ```bash
+   vercel teams ls
+   ```
+
+4. **Test Deployment**
+   ```bash
+   vercel --prod
+   ```
+
+## 🔒 Security Best Practices
+
+### Token Security
+
+1. **Use Minimal Permissions**
+   - Only grant necessary permissions
+   - Use "Full Account" scope only if needed
+
+2. **Set Expiration**
+   - Set reasonable expiration dates
+   - Rotate tokens regularly
+
+3. **Secure Storage**
+   - Never commit tokens to code
+   - Use GitHub secrets only
+   - Don't share tokens in chat/email
+
+### Organization Security
+
+1. **Team Access**
+   - Limit team member access
+   - Use role-based permissions
+   - Regular access reviews
+
+2. **Project Isolation**
+   - Separate projects by environment
+   - Use different tokens for different purposes
+   - Monitor deployment access
+
+### Monitoring
+
+1. **Audit Logs**
+   - Monitor Vercel dashboard activity
+   - Check GitHub Actions logs
+   - Review deployment history
+
+2. **Alerts**
+   - Set up deployment notifications
+   - Monitor failed deployments
+   - Track security events
+
+## 📊 Secret Management
+
+### Updating Secrets
+
+1. **Generate New Token**
+   - Go to Vercel dashboard → Tokens
+   - Create new token
+   - Delete old token
+
+2. **Update GitHub Secret**
+   - Go to repository → Settings → Secrets
+   - Click on secret name
+   - Update value
+   - Save changes
+
+3. **Test Deployment**
+   - Trigger new deployment
+   - Verify it works correctly
+
+### Rotating Secrets
+
+**Recommended Schedule**:
+- **Tokens**: Every 6-12 months
+- **Project IDs**: Only when project changes
+- **Organization IDs**: Only when organization changes
+
+## 🎯 Quick Reference
+
+### Required GitHub Secrets
+
+```yaml
+VERCEL_TOKEN: "vercel_xxxxxxxxxxxxxxxx"
+VERCEL_ORG_ID: "team_xxxxxxxxxxxxxxxx"
+VERCEL_PROJECT_ID: "prj_xxxxxxxxxxxxxxxx"
+```
+
+### Helper Commands
+
+```bash
+# Get Vercel credentials
+npm run vercel:credentials
+
+# Check Vercel CLI
+vercel --version
+
+# List projects
+vercel ls
+
+# Test deployment
+vercel --prod
+```
+
+### Important URLs
+
+- **Vercel Dashboard**: [vercel.com/dashboard](https://vercel.com/dashboard)
+- **Vercel Tokens**: [vercel.com/account/tokens](https://vercel.com/account/tokens)
+- **Vercel Account**: [vercel.com/account](https://vercel.com/account)
+- **GitHub Secrets**: Repository → Settings → Secrets and variables → Actions
+
+## 🚀 Next Steps
+
+After configuring GitHub secrets:
+
+1. **Test CI/CD Pipeline**
+   - Push changes to trigger deployment
+   - Monitor GitHub Actions workflow
+   - Verify Vercel deployment
+
+2. **Set Up Monitoring**
+   - Enable Vercel Analytics
+   - Configure deployment notifications
+   - Set up error monitoring
+
+3. **Optimize Deployment**
+   - Review build performance
+   - Optimize dependencies
+   - Configure caching
+
+4. **Documentation**
+   - Update team documentation
+   - Share access procedures
+   - Document troubleshooting steps
 
 ---
 
-**Once configured, your CapitalLeaf cybersecurity framework will automatically deploy on every code change!** 🛡️✨
+## 🆘 Need Help?
+
+If you encounter issues:
+
+1. **Run the helper script**: `npm run vercel:credentials`
+2. **Check troubleshooting guide**: `VERCEL_TROUBLESHOOTING.md`
+3. **Review setup guide**: `VERCEL_SETUP.md`
+4. **Create GitHub issue**: [github.com/SifatAli008/CapitalLeaf/issues](https://github.com/SifatAli008/CapitalLeaf/issues)
+
+Your CapitalLeaf cybersecurity framework is now ready for secure, automated deployment! 🛡️🚀
