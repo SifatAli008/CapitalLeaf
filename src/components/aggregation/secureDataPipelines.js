@@ -435,9 +435,18 @@ class SecureDataPipelines {
    */
   calculateChecksum(data) {
     // Simple checksum calculation (in real implementation, use cryptographic hash)
+    // Prevent loop bound injection by validating input and limiting length
+    if (!data || typeof data !== 'string') {
+      return '0';
+    }
+    
+    // Limit data length to prevent DoS attacks
+    const maxLength = 10000;
+    const safeData = data.length > maxLength ? data.substring(0, maxLength) : data;
+    
     let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      const char = data.charCodeAt(i);
+    for (let i = 0; i < safeData.length; i++) {
+      const char = safeData.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
@@ -651,7 +660,14 @@ class SecureDataPipelines {
    * @returns {boolean} True if valid
    */
   isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Use a more secure email regex that avoids ReDoS attacks
+    // Limit input length to prevent DoS attacks
+    if (!email || typeof email !== 'string' || email.length > 254) {
+      return false;
+    }
+    
+    // Simple but secure email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   }
 

@@ -77,7 +77,10 @@ class ZeroTrustAccessControl {
    * @returns {string} Session ID
    */
   generateSessionId() {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use crypto.randomBytes for cryptographically secure random generation
+    const crypto = require('crypto');
+    const randomBytes = crypto.randomBytes(16).toString('hex');
+    return `session_${Date.now()}_${randomBytes}`;
   }
 
   /**

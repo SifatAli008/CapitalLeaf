@@ -426,7 +426,10 @@ class RoleBasedAccessControl {
    * @returns {string} Session ID
    */
   createSession(userId, vaultName, action) {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use crypto.randomBytes for cryptographically secure random generation
+    const crypto = require('crypto');
+    const randomBytes = crypto.randomBytes(16).toString('hex');
+    const sessionId = `session_${Date.now()}_${randomBytes}`;
     
     const session = {
       sessionId,
