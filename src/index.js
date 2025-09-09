@@ -657,14 +657,14 @@ app.get('/api/pipeline/stats/:pipelineName', (req, res) => {
 
 app.get('/api/pipeline/audit', (req, res) => {
   try {
-    const criteria = {
-      pipelineName: req.query.pipelineName,
-      userId: req.query.userId,
-      riskLevel: req.query.riskLevel,
-      startDate: req.query.startDate,
-      endDate: req.query.endDate,
-      limit: parseInt(req.query.limit) || 100
-    };
+    // const criteria = {
+    //   pipelineName: req.query.pipelineName,
+    //   userId: req.query.userId,
+    //   riskLevel: req.query.riskLevel,
+    //   startDate: req.query.startDate,
+    //   endDate: req.query.endDate,
+    //   limit: parseInt(req.query.limit) || 100
+    // };
     // Simple audit trail (in production, use proper audit system)
     const auditTrails = [{
       id: '1',
