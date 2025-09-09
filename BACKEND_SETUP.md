@@ -70,7 +70,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database Configuration
-DATABASE_URL=mongodb://localhost:27017/capitalleaf
+DATABASE_URL=your-local-database-connection-string
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-in-production

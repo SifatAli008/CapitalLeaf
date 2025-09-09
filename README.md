@@ -71,7 +71,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database Configuration
-MONGODB_URI=mongodb://localhost:27017/capitalleaf
+DATABASE_URL=your-local-database-connection-string
 REDIS_URL=redis://localhost:6379
 
 # Security Configuration

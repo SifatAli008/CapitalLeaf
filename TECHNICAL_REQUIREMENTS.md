@@ -115,7 +115,7 @@ src/
 ```bash
 NODE_ENV=production
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/capitalleaf
+DATABASE_URL=your-local-database-connection-string
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=your-jwt-secret-key
 THREAT_INTEL_API_KEY=your-api-key

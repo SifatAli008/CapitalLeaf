@@ -4,7 +4,7 @@
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-jwt-secret';
 process.env.ENCRYPTION_KEY = 'test-encryption-key';
-process.env.MONGODB_URI = 'mongodb://localhost:27017/capitalleaf_test';
+process.env.DATABASE_URL = 'your-test-database-connection-string';
 process.env.REDIS_URL = 'redis://localhost:6379/1';
 
 // Global test timeout
