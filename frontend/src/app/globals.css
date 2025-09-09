@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+/* Custom CapitalLeaf Logo Styles */
+.logo-text {
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -1px;
+}
+
+.capital-text {
+  color: #4a5568;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.leaf-text {
+  color: #3182ce;
+  font-weight: 400;
+  font-style: italic;
+  margin-left: -2px;
+  text-shadow: 1px 1px 2px rgba(49, 130, 206, 0.3);
+}
+
+/* Animation classes */
+.logo-fadeIn {
+  animation: logoFadeIn 1s ease-in-out;
+}
+
+.logo-pulse {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+.logo-glow {
+  animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes logoGlow {
+  from {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  to {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 20px rgba(49, 130, 206, 0.3);
+  }
+}
