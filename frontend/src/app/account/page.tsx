@@ -92,7 +92,7 @@ async function disable2FAForUser(username: string): Promise<boolean> {
 const AccountPage: React.FC = () => {
   const router = useRouter();
   const { user, session, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'devices' | 'preferences'>('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -198,7 +198,12 @@ const AccountPage: React.FC = () => {
     setSuccess('Profile updated successfully');
   };
 
-  const navigationItems = [
+  const navigationItems: Array<{
+    id: 'profile' | 'security' | 'devices' | 'preferences';
+    label: string;
+    icon: any;
+    color: string;
+  }> = [
     { id: 'profile', label: 'Profile', icon: User, color: 'text-blue-600' },
     { id: 'security', label: 'Security', icon: Shield, color: 'text-green-600' },
     { id: 'devices', label: 'Devices', icon: Smartphone, color: 'text-purple-600' },
@@ -451,215 +456,172 @@ const AccountPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Mobile Header */}
-      <header className="lg:hidden bg-white shadow-sm border-b">
-        <div className="px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Modern Header */}
+      <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+        <div className="px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.push('/dashboard')}
-            className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                className="p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
               >
-            <ArrowLeft size={24} />
+                <ArrowLeft size={20} />
               </button>
-              <CapitalLeafLogo size="small" showSubtitle={false} />
-              <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              >
-            <Menu size={24} />
-              </button>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <Settings size={16} className="text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">Account Settings</h1>
+                  <p className="text-sm text-gray-500">Manage your profile and security</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user.username}</p>
+                <p className="text-xs text-gray-500">Administrator</p>
+              </div>
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                <User size={16} className="text-white" />
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md shadow-xl transform 
-          transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="flex flex-col h-full">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between p-6 border-b">
-              <CapitalLeafLogo size="medium" showSubtitle={false} />
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="lg:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              >
-                <X size={20} />
-              </button>
-        </div>
-
-            {/* User Info */}
-            <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">{user.username}</p>
-                  <p className="text-sm text-gray-600">{user.email}</p>
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
+        {/* Modern Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 bg-white/60 backdrop-blur-sm rounded-2xl p-2 border border-gray-200/50">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+                    activeTab === item.id
+                      ? 'bg-white text-blue-700 shadow-sm border border-blue-200'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }`}
+                >
+                  <Icon size={18} className={activeTab === item.id ? 'text-blue-600' : item.color} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
-        </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-2">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left 
-                      transition-colors ${
-                        activeTab === item.id
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                      }`}
-                  >
-                    <Icon size={20} className={activeTab === item.id ? 'text-blue-600' : item.color} />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Back to Dashboard */}
-            <div className="p-4 border-t">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-              >
-                <ArrowLeft size={20} />
-                <span className="font-medium">Back to Dashboard</span>
-              </button>
-            </div>
-          </div>
-          </div>
 
         {/* Main Content */}
-        <div className="flex-1 lg:ml-0">
-          {/* Desktop Header */}
-          <header className="hidden lg:block bg-white shadow-sm border-b">
-            <div className="px-6 py-4 flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
-                <p className="text-gray-600">Manage your profile and security preferences</p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                  <Bell size={20} />
-                </button>
-                <button className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                  <Search size={20} />
-                </button>
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 
-                    hover:text-gray-900 hover:bg-gray-100 transition-colors"
-                >
-                  <ArrowLeft size={20} />
-                  <span>Dashboard</span>
-                </button>
-              </div>
-            </div>
-          </header>
+        <div className="space-y-6">
 
           {/* Content */}
           <main className="p-6">
             {activeTab === 'profile' && (
-              <div className="space-y-6">
-                {/* Profile Header */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <div className="flex items-center space-x-6">
-                    <div className="relative">
-                      {avatar ? (
-                        <Image 
-                          src={avatar} 
-                          alt="Profile" 
-                          width={80}
-                          height={80}
-                          className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                          <User size={32} className="text-white" />
-                        </div>
-                      )}
-                      <button
-                        onClick={() => setShowAvatarUpload(!showAvatarUpload)}
-                        className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors shadow-lg"
-                      >
-                        <Camera size={16} />
-                      </button>
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">{user.username}</h2>
-                      <p className="text-gray-600">{user.email}</p>
-                      <div className="flex items-center space-x-4 mt-2">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Profile Card */}
+                <div className="lg:col-span-1">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/50 p-6">
+                    <div className="text-center">
+                      <div className="relative inline-block">
+                        {avatar ? (
+                          <Image 
+                            src={avatar} 
+                            alt="Profile" 
+                            width={120}
+                            height={120}
+                            className="w-30 h-30 rounded-full object-cover border-4 border-white shadow-xl"
+                          />
+                        ) : (
+                          <div className="w-30 h-30 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center border-4 border-white shadow-xl">
+                            <User size={48} className="text-white" />
+                          </div>
+                        )}
+                        <button
+                          onClick={() => setShowAvatarUpload(!showAvatarUpload)}
+                          className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                          <Camera size={18} />
+                        </button>
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 mt-4">{user.username}</h2>
+                      <p className="text-gray-600 mt-1">{user.email}</p>
+                      <div className="flex items-center justify-center space-x-2 mt-3">
+                        <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full font-medium">Verified</span>
                         <span className="text-sm text-gray-500">Member since {new Date().getFullYear()}</span>
-                        <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full">Verified</span>
                       </div>
                     </div>
+                    
+                    {showAvatarUpload && (
+                      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">Upload Profile Picture</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarUpload}
+                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all duration-200"
+                        />
+                      </div>
+                    )}
                   </div>
-                  
-                  {showAvatarUpload && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Upload Profile Picture</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarUpload}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                    </div>
-                  )}
                 </div>
 
-                {/* Personal Information */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-6">Personal Information</h2>
-                <form onSubmit={handleProfileUpdate} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                        First Name
-                      </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <User size={18} className="text-gray-400" />
-                          </div>
-                      <input
-                        type="text"
-                        id="firstName"
-                        value={profileData.firstName}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 placeholder-gray-500"
-                        placeholder="Enter your first name"
-                      />
-                        </div>
+                {/* Profile Form */}
+                <div className="lg:col-span-2">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/50 p-6">
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <User size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
+                        <p className="text-sm text-gray-500">Update your profile details</p>
+                      </div>
                     </div>
-                    <div>
-                      <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                        Last Name
-                      </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <User size={18} className="text-gray-400" />
+
+                    <form onSubmit={handleProfileUpdate} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                            First Name
+                          </label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <User size={18} className="text-gray-400" />
+                            </div>
+                            <input
+                              type="text"
+                              id="firstName"
+                              value={profileData.firstName}
+                              onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 hover:border-gray-400"
+                              placeholder="Enter your first name"
+                            />
                           </div>
-                      <input
-                        type="text"
-                        id="lastName"
-                        value={profileData.lastName}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 placeholder-gray-500"
-                        placeholder="Enter your last name"
-                      />
                         </div>
-                    </div>
-                  </div>
+                        <div>
+                          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                            Last Name
+                          </label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <User size={18} className="text-gray-400" />
+                            </div>
+                            <input
+                              type="text"
+                              id="lastName"
+                              value={profileData.lastName}
+                              onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 hover:border-gray-400"
+                              placeholder="Enter your last name"
+                            />
+                          </div>
+                        </div>
+                      </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -674,7 +636,7 @@ const AccountPage: React.FC = () => {
                       id="email"
                       value={profileData.email}
                       onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 hover:border-gray-400"
                       placeholder="Enter your email address"
                     />
                       </div>
@@ -693,40 +655,42 @@ const AccountPage: React.FC = () => {
                       id="username"
                       value={profileData.username}
                       onChange={(e) => setProfileData(prev => ({ ...prev, username: e.target.value }))}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 hover:border-gray-400"
                       placeholder="Enter your username"
                     />
                       </div>
                   </div>
 
                   {error && (
-                      <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl border border-red-200">
+                    <div className="flex items-center space-x-3 text-red-600 bg-red-50 p-4 rounded-xl border border-red-200">
                       <AlertCircle size={20} />
-                      <span className="text-sm">{error}</span>
+                      <span className="text-sm font-medium">{error}</span>
                     </div>
                   )}
 
                   {success && (
-                      <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-4 rounded-xl border border-green-200">
+                    <div className="flex items-center space-x-3 text-green-600 bg-green-50 p-4 rounded-xl border border-green-200">
                       <CheckCircle size={20} />
-                      <span className="text-sm">{success}</span>
+                      <span className="text-sm font-medium">{success}</span>
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg"
-                  >
-                    <Save size={20} />
-                    <span>Update Profile</span>
-                  </button>
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="submit"
+                      className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                      <Save size={20} />
+                      <span>Save Changes</span>
+                    </button>
+                  </div>
                 </form>
-                </div>
-
               </div>
-            )}
+            </div>
+              </div>
+          )}
 
-            {activeTab === 'security' && (
+          {activeTab === 'security' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-6">Change Password</h2>
@@ -1124,7 +1088,7 @@ const AccountPage: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'devices' && (
+          {activeTab === 'devices' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <div className="flex items-center justify-between mb-6">
@@ -1191,7 +1155,7 @@ const AccountPage: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'preferences' && (
+          {activeTab === 'preferences' && (
               <div className="space-y-6">
                 {/* Notification Settings */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -1241,8 +1205,8 @@ const AccountPage: React.FC = () => {
               </div>
             )}
           </main>
-          </div>
         </div>
+      </div>
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
