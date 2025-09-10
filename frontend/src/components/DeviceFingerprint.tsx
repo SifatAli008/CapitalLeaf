@@ -61,11 +61,11 @@ const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGene
     } finally {
       setIsLoading(false);
     }
-  }, []); // Remove dependencies to prevent re-creation
+  }, [hasGenerated, onFingerprintGenerated]); // Include dependencies
 
   useEffect(() => {
     generateFingerprint();
-  }, []); // Empty dependency array - only run once
+  }, [generateFingerprint]); // Include generateFingerprint dependency
 
   const getCanvasFingerprint = (): string => {
     try {

@@ -30,7 +30,7 @@ import {
 
 const DashboardPage: React.FC = () => {
   const router = useRouter();
-  const { user, session, isAuthenticated, logout, devices, deviceCount, maxDevices } = useAuth();
+  const { user, session, isAuthenticated, logout, deviceCount, maxDevices } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);

@@ -187,7 +187,7 @@ const LoginPage: React.FC = () => {
             <p className="text-gray-600 text-lg">Sign in to your CapitalLeaf account</p>
           </div>
 
-          <DeviceFingerprint onFingerprintGenerated={useCallback((info) => {
+          <DeviceFingerprint onFingerprintGenerated={useCallback((info: any) => {
             console.log('Login page: Device info received:', info);
             setDeviceInfo(info);
             setDeviceInfoLoading(false);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserDevices, trustDeviceInUser } from '@/lib/mock-data-store';
+import { trustDeviceInUser } from '@/lib/mock-data-store';
 
 interface VerifyMFARequest {
   username: string;

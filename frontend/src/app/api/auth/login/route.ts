@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hasUser2FAEnabled, getUsersWith2FA } from '@/lib/2fa-store';
-import { getUserDevices, addDeviceToUser, getDeviceType } from '@/lib/mock-data-store';
+import { getUserDevices, addDeviceToUser } from '@/lib/mock-data-store';
 
 interface DeviceInfo {
   fingerprint: string;
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // Get user device data
     const user = getUserDevices(username);
     const deviceFingerprint = userContext?.fingerprint;
-    const deviceName = userContext ? `${userContext.platform} - ${userContext.userAgent.split(' ')[0]}` : 'Unknown Device';
+    // const deviceName = userContext ? `${userContext.platform} - ${userContext.userAgent.split(' ')[0]}` : 'Unknown Device';
     
     // Check device registration and limits
     let deviceTrusted = false;

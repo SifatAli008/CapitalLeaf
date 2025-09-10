@@ -7,13 +7,11 @@ import {
   Monitor, 
   Tablet, 
   Shield, 
-  ShieldCheck, 
   Trash2, 
   Edit3, 
   Plus,
   AlertTriangle,
   CheckCircle,
-  Clock,
   MoreVertical
 } from 'lucide-react';
 
@@ -387,7 +385,9 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ onClose }) => {
                       ) : (
                         <h3 className="font-semibold text-gray-900">{device.deviceName}</h3>
                       )}
-                      <Shield className="w-4 h-4 text-blue-600" title="Registered Device" />
+                      <div title="Registered Device">
+                        <Shield className="w-4 h-4 text-blue-600" />
+                      </div>
                     </div>
                     <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                       <span className="capitalize">{device.deviceType}</span>

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('Register Device API: Request body:', JSON.stringify(body, null, 2));
     
-    const { sessionId, deviceName, deviceInfo, userId }: DeviceRegistrationRequest = body;
+    const { deviceName, deviceInfo, userId }: DeviceRegistrationRequest = body;
 
     if (!deviceName || !deviceInfo?.fingerprint) {
       console.log('Register Device API: Missing required fields');

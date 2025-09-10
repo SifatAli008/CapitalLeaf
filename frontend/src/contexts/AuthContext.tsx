@@ -45,6 +45,8 @@ interface Device {
   lastUsed: string;
   registeredAt: string;
   isActive: boolean;
+  platform?: string;
+  screenResolution?: string;
 }
 
 interface AuthContextType {
@@ -58,7 +60,7 @@ interface AuthContextType {
   deviceCount: number;
   maxDevices: number;
   canAddDevice: boolean;
-  login: (username: string, password: string, deviceInfo?: Record<string, unknown>) => Promise<{ success: boolean; message: string; requiresMFA?: boolean; deviceLimitExceeded?: boolean }>;
+  login: (username: string, password: string, deviceInfo?: Record<string, unknown>) => Promise<{ success: boolean; message: string; requiresMFA?: boolean; deviceLimitExceeded?: boolean; errorCode?: string }>;
   register: (userData: any) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   complete2FA: (code: string) => Promise<{ success: boolean; message: string }>;
