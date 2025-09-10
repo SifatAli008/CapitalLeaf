@@ -14,8 +14,7 @@ const nextConfig = {
     }
     return config;
   },
-  // Vercel optimization
-  output: 'standalone'
+  // Vercel optimization - removed standalone for better compatibility
 };
 
 module.exports = nextConfig;
