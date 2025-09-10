@@ -9,9 +9,10 @@
     "complexity": ["warn", 30],
     "max-lines": ["warn", 1000],
     "quotes": "off",
-    "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "object-shorthand": "off",
+
+    
     "react/jsx-no-undef": "warn"
   },
   "overrides": [
