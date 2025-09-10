@@ -8,11 +8,13 @@ import { Shield, ArrowLeft, CheckCircle, AlertCircle, Smartphone } from 'lucide-
 
 const Verify2FAPage: React.FC = () => {
   const router = useRouter();
-  const { verify2FA, isLoading, pendingUser, requires2FA } = useAuth();
+  const { complete2FA, isLoading, pendingUser, requires2FA, logout } = useAuth();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [hasRedirected, setHasRedirected] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(40); // 40 seconds timer
+  const [timerActive, setTimerActive] = useState(false);
 
   useEffect(() => {
     // If doesn't require 2FA or no pending user, redirect to login
@@ -23,6 +25,50 @@ const Verify2FAPage: React.FC = () => {
       router.push('/login');
     }
   }, [requires2FA, pendingUser, hasRedirected, router]);
+
+  // 40-second timer effect
+  useEffect(() => {
+    if (requires2FA && pendingUser && !timerActive) {
+      console.log('2FA Timer: Starting 40-second countdown');
+      setTimerActive(true);
+      setTimeLeft(40);
+    }
+  }, [requires2FA, pendingUser, timerActive]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (timerActive && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            // Timer expired - logout and redirect
+            console.log('2FA Timer: Time expired - logging out and redirecting');
+            setTimerActive(false);
+            logout();
+            router.push('/login');
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [timerActive, timeLeft, logout, router]);
+
+  // Reset timer when user starts typing
+  useEffect(() => {
+    if (code.length > 0 && timerActive) {
+      console.log('2FA Timer: User activity detected - resetting timer');
+      setTimeLeft(40);
+    }
+  }, [code, timerActive]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,14 +88,22 @@ const Verify2FAPage: React.FC = () => {
       return;
     }
 
-    console.log('2FA Verification: Attempting to verify code for user:', pendingUser.username);
-    const result = await verify2FA(pendingUser.username, code);
-    console.log('2FA Verification result:', result);
+    console.log('2FA Verification: Attempting to complete 2FA for user:', pendingUser.username);
+    console.log('2FA Verification: Code entered:', code);
+    
+    const result = await complete2FA(code);
+    console.log('2FA Completion result:', result);
 
     if (result.success) {
       console.log('2FA verification successful, redirecting to dashboard');
-      router.push('/dashboard');
+      // Stop the timer
+      setTimerActive(false);
+      // Add a small delay to ensure state is updated
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } else {
+      console.log('2FA verification failed:', result.message);
       setError(result.message || 'Invalid verification code. Please try again.');
     }
     setIsVerifying(false);
@@ -64,6 +118,7 @@ const Verify2FAPage: React.FC = () => {
   };
 
   const handleBackToLogin = () => {
+    setTimerActive(false);
     router.push('/login');
   };
 
@@ -122,6 +177,24 @@ const Verify2FAPage: React.FC = () => {
             <p className="text-gray-600">
               Enter the 6-digit code from your Google Authenticator app
             </p>
+            
+            {/* Timer Display */}
+            {timerActive && (
+              <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span className="text-orange-800 font-medium">Session expires in:</span>
+                  </div>
+                  <div className="text-2xl font-mono font-bold text-orange-600">
+                    {timeLeft}s
+                  </div>
+                </div>
+                <p className="text-xs text-orange-600 text-center mt-2">
+                  You will be automatically logged out if verification is not completed in time
+                </p>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

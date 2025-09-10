@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
+import AutoLogoutProvider from '@/components/AutoLogoutProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,7 +38,9 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning={true}>
         <AuthProvider>
-          {children}
+          <AutoLogoutProvider>
+            {children}
+          </AutoLogoutProvider>
         </AuthProvider>
       </body>
     </html>

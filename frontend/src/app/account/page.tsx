@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import CapitalLeafLogo from '@/components/CapitalLeafLogo';
 import { 
   User, 
   Mail, 
@@ -19,10 +18,6 @@ import {
   CheckCircle,
   ArrowLeft,
   Settings,
-  Bell,
-  Search,
-  Menu,
-  X,
   Key,
   Smartphone as Phone,
   Monitor,
@@ -91,7 +86,7 @@ async function disable2FAForUser(username: string): Promise<boolean> {
 
 const AccountPage: React.FC = () => {
   const router = useRouter();
-  const { user, session, isAuthenticated } = useAuth();
+  const { user, session, isAuthenticated, completeLoginAfter2FADisable } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'devices' | 'preferences'>('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -284,6 +279,10 @@ const AccountPage: React.FC = () => {
           setShow2FASetup(false);
           setShowBackupCodes(false);
           setSuccess('Two-factor authentication disabled successfully!');
+          
+          // Automatically complete login since 2FA is now disabled
+          console.log('🔄 Auto-completing login after 2FA disable');
+          completeLoginAfter2FADisable();
         } else {
           console.error('❌ Failed to disable 2FA for user:', user.username);
           setError('Failed to disable 2FA. Please try again.');
