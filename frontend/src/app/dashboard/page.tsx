@@ -167,7 +167,7 @@ const DashboardPage: React.FC = () => {
       description: 'Configure security settings',
       icon: Settings,
       color: 'bg-orange-500',
-      action: () => setActiveTab('settings')
+      action: () => router.push('/account')
     }
   ];
 
@@ -176,7 +176,7 @@ const DashboardPage: React.FC = () => {
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'analytics', label: 'Analytics', icon: Activity },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'settings', label: 'Settings', icon: Settings, action: () => router.push('/account') }
   ];
 
   return (
@@ -201,7 +201,10 @@ const DashboardPage: React.FC = () => {
                 <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
               </button>
               
-              <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => router.push('/account')}
+                className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors"
+              >
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">{user.username}</p>
                   <p className="text-xs text-gray-500">Administrator</p>
@@ -209,7 +212,7 @@ const DashboardPage: React.FC = () => {
                 <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                   <User size={16} className="text-white" />
                 </div>
-              </div>
+              </button>
               
               <button
                 onClick={handleLogout}
@@ -240,7 +243,7 @@ const DashboardPage: React.FC = () => {
               {sidebarItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => item.action ? item.action() : setActiveTab(item.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
                     activeTab === item.id
                       ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
