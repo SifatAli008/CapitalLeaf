@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     // For demo: check the shared 2FA store
     const userHas2FAEnabled = hasUser2FAEnabled(username);
     console.log(`Login API: Checking 2FA for user "${username}" - Enabled: ${userHas2FAEnabled}`);
-    console.log(`Login API: All users with 2FA enabled:`, getUsersWith2FA());
+    console.log('Login API: All users with 2FA enabled:', getUsersWith2FA());
     console.log(`Login API: Username normalization test - original: "${username}", lowercase: "${username.toLowerCase()}"`);
     
     // CRITICAL: Force 2FA for users who have it enabled - NO BYPASSING ALLOWED
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       user: { 
         id: username, 
         username,
-        email: email
+        email
       },
       session: mockSession,
       message: 'Authentication successful'

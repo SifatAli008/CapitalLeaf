@@ -209,7 +209,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         body: JSON.stringify({ 
           username: pendingUser.username, 
-          code: code 
+          code 
         }),
       });
 
@@ -246,8 +246,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          username: username, 
-          code: code 
+          username, 
+          code 
         }),
       });
 

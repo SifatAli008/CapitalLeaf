@@ -19,28 +19,28 @@ export default function Home() {
   const features = [
     {
       icon: Shield,
-      title: "Zero Trust Access Control",
-      description: "Continuous authentication and risk-based access control"
+      title: 'Zero Trust Access Control',
+      description: 'Continuous authentication and risk-based access control'
     },
     {
       icon: Lock,
-      title: "Multi-Factor Authentication",
-      description: "Google Authenticator integration with TOTP verification"
+      title: 'Multi-Factor Authentication',
+      description: 'Google Authenticator integration with TOTP verification'
     },
     {
       icon: Users,
-      title: "User Management",
-      description: "Complete user registration, login, and profile management"
+      title: 'User Management',
+      description: 'Complete user registration, login, and profile management'
     },
     {
       icon: Activity,
-      title: "Risk Assessment",
-      description: "Dynamic risk scoring and behavioral analytics"
+      title: 'Risk Assessment',
+      description: 'Dynamic risk scoring and behavioral analytics'
     },
     {
       icon: Zap,
-      title: "Real-time Security",
-      description: "Live threat detection and automated incident response"
+      title: 'Real-time Security',
+      description: 'Live threat detection and automated incident response'
     }
   ];
 

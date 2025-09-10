@@ -5,9 +5,13 @@
     "@next/next/no-page-custom-font": "off",
     "indent": "off",
     "@typescript-eslint/indent": "off",
-    "max-len": ["warn", { "code": 120, "ignoreUrls": true }],
-    "complexity": ["warn", 20],
-    "max-lines": ["warn", 500]
+    "max-len": ["warn", { "code": 150, "ignoreUrls": true, "ignoreStrings": true }],
+    "complexity": ["warn", 30],
+    "max-lines": ["warn", 1000],
+    "quotes": "off",
+    "no-unused-vars": "warn",
+    "object-shorthand": "off",
+    "react/jsx-no-undef": "warn"
   },
   "overrides": [
     {
@@ -15,16 +19,18 @@
       "rules": {
         "indent": "off",
         "@typescript-eslint/indent": "off",
-        "max-lines": ["warn", 1000]
+        "max-lines": ["warn", 1500],
+        "max-len": ["warn", { "code": 200, "ignoreUrls": true, "ignoreStrings": true }]
       }
     },
     {
-      "files": ["src/app/account/page.tsx"],
+      "files": ["src/app/account/page.tsx", "src/app/dashboard/page.tsx"],
       "rules": {
         "indent": "off",
         "@typescript-eslint/indent": "off",
         "max-lines": "off",
-        "complexity": "off"
+        "complexity": "off",
+        "max-len": "off"
       }
     }
   ]

@@ -14,7 +14,7 @@ const CapitalLeafLogo: React.FC<CapitalLeafLogoProps> = ({
   size = 'md', 
   className = '',
   showSubtitle = false,
-  subtitle = "Dynamic Defense with Microservice Isolation",
+  subtitle = 'Dynamic Defense with Microservice Isolation',
   animated = false
 }) => {
   const getTextColors = () => {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
 import { 
@@ -144,9 +145,23 @@ const AccountPage: React.FC = () => {
 
   if (!isAuthenticated || !user || !session) {
     return (
-      <div style={{minHeight: '100vh', background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
         <div style={{textAlign: 'center'}}>
-          <div style={{width: '48px', height: '48px', border: '2px solid #2563eb', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto'}}></div>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '2px solid #2563eb',
+            borderTop: '2px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto'
+          }}></div>
           <p style={{marginTop: '16px', color: '#6b7280'}}>Loading your account settings...</p>
         </div>
       </div>
@@ -458,7 +473,9 @@ const AccountPage: React.FC = () => {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md shadow-xl transform 
+          transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex flex-col h-full">
             {/* Sidebar Header */}
             <div className="flex items-center justify-between p-6 border-b">
@@ -495,11 +512,12 @@ const AccountPage: React.FC = () => {
                       setActiveTab(item.id);
                       setSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-colors ${
-                      activeTab === item.id
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left 
+                      transition-colors ${
+                        activeTab === item.id
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
                   >
                     <Icon size={20} className={activeTab === item.id ? 'text-blue-600' : item.color} />
                     <span className="font-medium">{item.label}</span>
@@ -539,7 +557,8 @@ const AccountPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 
+                    hover:text-gray-900 hover:bg-gray-100 transition-colors"
                 >
                   <ArrowLeft size={20} />
                   <span>Dashboard</span>
@@ -557,9 +576,11 @@ const AccountPage: React.FC = () => {
                   <div className="flex items-center space-x-6">
                     <div className="relative">
                       {avatar ? (
-                        <img 
+                        <Image 
                           src={avatar} 
                           alt="Profile" 
+                          width={80}
+                          height={80}
                           className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
                         />
                       ) : (
@@ -896,7 +917,13 @@ const AccountPage: React.FC = () => {
                         <div className="flex items-center space-x-4">
                           <div className="p-4 bg-white rounded-lg border border-gray-200">
                             {qrCodeUrl ? (
-                              <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
+                              <Image 
+                                src={qrCodeUrl} 
+                                alt="QR Code" 
+                                width={128}
+                                height={128}
+                                className="w-32 h-32" 
+                              />
                             ) : (
                               <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
                                 <span className="text-xs text-gray-500">Loading QR Code...</span>
