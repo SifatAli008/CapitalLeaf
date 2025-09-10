@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 
-interface DeviceInfo {
+interface DeviceInfo extends Record<string, unknown> {
   fingerprint: string;
   userAgent: string;
   language: string;
