@@ -23,9 +23,7 @@ import {
   Filter,
   Download,
   Calendar,
-  Key,
-  Cpu,
-  Zap
+  Cpu
 } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {
@@ -33,7 +31,6 @@ const DashboardPage: React.FC = () => {
   const { user, session, isAuthenticated, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showRiskDetails, setShowRiskDetails] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {

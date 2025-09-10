@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
 import DeviceFingerprint from '@/components/DeviceFingerprint';
-import { Shield, Eye, EyeOff, AlertCircle, Lock, User, ArrowRight, CreditCard, TrendingUp, CheckCircle, Star } from 'lucide-react';
+import { Shield, Eye, EyeOff, AlertCircle, Lock, User, ArrowRight, CreditCard, TrendingUp, CheckCircle } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const router = useRouter();

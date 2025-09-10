@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const userData = Cookies.get('userData');
     const sessionData = Cookies.get('sessionData');
 
-    if (token && userData && sessionData) {
+    if (token && userData && sessionData && userData !== 'undefined' && sessionData !== 'undefined') {
       try {
         const parsedUser = JSON.parse(userData);
         const parsedSession = JSON.parse(sessionData);
@@ -108,6 +108,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setPendingUser(null);
       } catch (error) {
         console.error('Error parsing stored auth data:', error);
+        // Clear invalid cookies
+        Cookies.remove('accessToken');
+        Cookies.remove('userData');
+        Cookies.remove('sessionData');
         logout();
       }
     }

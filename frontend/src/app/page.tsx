@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
-import { Shield, Lock, Users, Activity, Zap, ArrowRight, CheckCircle, Star, Globe, BarChart3 } from 'lucide-react';
+import { Shield, Lock, Users, Activity, Zap, ArrowRight, CheckCircle, Star, BarChart3 } from 'lucide-react';
 
 export default function Home() {
   const { isAuthenticated, user } = useAuth();

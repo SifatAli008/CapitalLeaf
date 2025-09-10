@@ -41,7 +41,30 @@ export async function POST(request: NextRequest) {
         username,
         email,
         firstName,
-        lastName
+        lastName,
+        role: 'user'
+      },
+      session: {
+        sessionId: `session_${username}_${Date.now()}`,
+        riskScore: 0.1,
+        requiresMFA: false,
+        mfaMethods: [],
+        deviceTrusted: true,
+        behavioralAnomaly: {
+          detected: false,
+          anomalies: [],
+          confidence: 0.0
+        },
+        riskFactors: {
+          device: 0.1,
+          location: 0.1,
+          transaction: 0.1,
+          time: 0.1,
+          network: 0.1,
+          velocity: 0.1
+        },
+        recommendations: ['Welcome to CapitalLeaf! Your account is secure.'],
+        timestamp: new Date().toISOString()
       }
     });
 
