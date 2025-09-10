@@ -238,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(null);
     }
     setIsLoading(false);
-  }, [logout, SESSION_TIMEOUT]);
+  }, [logout, SESSION_TIMEOUT, INACTIVITY_TIMEOUT]);
 
   // Activity tracking
   useEffect(() => {

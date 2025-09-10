@@ -37,7 +37,7 @@ const Verify2FAPage: React.FC = () => {
 
   // Timer countdown effect
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => {

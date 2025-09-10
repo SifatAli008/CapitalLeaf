@@ -91,7 +91,7 @@ export const useAutoLogout = (options: UseAutoLogoutOptions = {}) => {
     }
   }, [isAuthenticated, resetInactivityTimer, onLogout, logout, clearTimeouts]);
 
-  const handleBeforeUnload = useCallback((event: BeforeUnloadEvent) => {
+  const handleBeforeUnload = useCallback((_event: BeforeUnloadEvent) => {
     if (!isAuthenticated) return;
 
     // Clear sensitive data

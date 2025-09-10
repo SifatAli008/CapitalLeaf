@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAutoLogout } from '@/hooks/useAutoLogout';
 import AutoLogoutWarning from './AutoLogoutWarning';
 
@@ -43,12 +43,12 @@ const AutoLogoutProvider: React.FC<AutoLogoutProviderProps> = ({ children }) => 
     setWarningInterval(interval);
   };
 
-  const clearWarningInterval = () => {
+  const clearWarningInterval = useCallback(() => {
     if (warningInterval) {
       clearInterval(warningInterval);
       setWarningInterval(null);
     }
-  };
+  }, [warningInterval]);
 
   const handleExtendSession = () => {
     setShowWarning(false);
