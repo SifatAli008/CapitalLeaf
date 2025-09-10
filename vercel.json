@@ -1,23 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": ".next"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
-    }
-  ],
-  "functions": {
-    "frontend/src/app/api/**/*.ts": {
-      "runtime": "@vercel/node"
-    }
-  }
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "framework": "nextjs"
 }
