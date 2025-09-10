@@ -18,6 +18,7 @@ import {
   BarChart3,
   Eye,
   EyeOff,
+  TrendingUp,
   Menu,
   X,
   ArrowRight,
@@ -508,7 +509,7 @@ const DashboardPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Login Activity</h3>
                     <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
                       <div className="text-center">
-                        <LineChart size={48} className="text-gray-400 mx-auto mb-4" />
+                        <TrendingUp size={48} className="text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-600">Login trends chart</p>
                         <p className="text-sm text-gray-500">Visual representation of login patterns</p>
                       </div>

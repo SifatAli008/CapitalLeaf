@@ -91,7 +91,7 @@ async function disable2FAForUser(username: string): Promise<boolean> {
 
 const AccountPage: React.FC = () => {
   const router = useRouter();
-  const { user, session, isAuthenticated, logout } = useAuth();
+  const { user, session, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
