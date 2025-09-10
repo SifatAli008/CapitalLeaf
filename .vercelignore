@@ -1,8 +1,6 @@
 # Backend files (not needed for frontend deployment)
 src/
 node_modules/
-package.json
-package-lock.json
 
 # Force Vercel to use frontend directory
 !frontend/package.json
