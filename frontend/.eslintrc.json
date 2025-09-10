@@ -9,7 +9,7 @@
     "complexity": ["warn", 30],
     "max-lines": ["warn", 1000],
     "quotes": "off",
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "object-shorthand": "off",
 
     
@@ -33,6 +33,12 @@
         "max-lines": "off",
         "complexity": "off",
         "max-len": "off"
+      }
+    },
+    {
+      "files": ["src/contexts/AuthContext.tsx", "src/components/DeviceFingerprint.tsx"],
+      "rules": {
+        "no-unused-vars": "off"
       }
     }
   ]

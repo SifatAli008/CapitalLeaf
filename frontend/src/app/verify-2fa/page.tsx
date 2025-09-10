@@ -8,7 +8,7 @@ import { Shield, ArrowLeft, CheckCircle, AlertCircle, Smartphone } from 'lucide-
 
 const Verify2FAPage: React.FC = () => {
   const router = useRouter();
-  const { verify2FA, isLoading, isAuthenticated, user, pendingUser, requires2FA } = useAuth();
+  const { verify2FA, isLoading, pendingUser, requires2FA } = useAuth();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);

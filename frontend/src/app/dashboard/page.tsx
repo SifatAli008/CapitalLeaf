@@ -24,7 +24,6 @@ import {
   ArrowRight,
   RefreshCw,
   Target,
-  TrendingUp,
   PieChart,
 } from 'lucide-react';
 
