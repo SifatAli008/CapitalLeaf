@@ -50,3 +50,7 @@ __tests__/
 # Temporary files
 tmp/
 temp/
+
+# Backend specific files
+package-backend.json
+package-vercel.json
