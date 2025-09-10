@@ -2,6 +2,30 @@
   "extends": ["next/core-web-vitals"],
   "rules": {
     "react/no-unescaped-entities": "off",
-    "@next/next/no-page-custom-font": "off"
-  }
+    "@next/next/no-page-custom-font": "off",
+    "indent": "off",
+    "@typescript-eslint/indent": "off",
+    "max-len": ["warn", { "code": 120, "ignoreUrls": true }],
+    "complexity": ["warn", 20],
+    "max-lines": ["warn", 500]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.tsx", "**/*.ts"],
+      "rules": {
+        "indent": "off",
+        "@typescript-eslint/indent": "off",
+        "max-lines": ["warn", 1000]
+      }
+    },
+    {
+      "files": ["src/app/account/page.tsx"],
+      "rules": {
+        "indent": "off",
+        "@typescript-eslint/indent": "off",
+        "max-lines": "off",
+        "complexity": "off"
+      }
+    }
+  ]
 }
