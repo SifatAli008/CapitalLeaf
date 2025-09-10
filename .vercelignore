@@ -4,6 +4,10 @@ node_modules/
 package.json
 package-lock.json
 
+# Force Vercel to use frontend directory
+!frontend/package.json
+!frontend/package-lock.json
+
 # Development files
 .env.local
 .env.development.local
