@@ -4,10 +4,6 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  // Ensure proper port configuration
-  env: {
-    PORT: '3001'
-  },
   // Disable source maps in development to avoid extension conflicts
   productionBrowserSourceMaps: false,
   // Configure webpack to handle extension conflicts
@@ -17,7 +13,9 @@ const nextConfig = {
       config.devtool = false;
     }
     return config;
-  }
+  },
+  // Vercel optimization
+  output: 'standalone'
 };
 
 module.exports = nextConfig;

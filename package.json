@@ -6,10 +6,12 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "build": "cd frontend && npm install && npm run build",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "frontend:dev": "cd frontend && npm run dev",
     "frontend:build": "cd frontend && npm run build",
+    "frontend:start": "cd frontend && npm run start",
     "frontend:lint": "cd frontend && npm run lint",
     "frontend:lint:fix": "cd frontend && npm run lint -- --fix"
   },
