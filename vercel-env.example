@@ -1,0 +1,29 @@
+# Vercel Environment Variables
+# Copy this file to .env.local in the frontend directory
+
+# Next.js Configuration
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_API_URL=https://your-app.vercel.app/api
+
+# Security Headers
+NEXT_PUBLIC_SECURITY_HEADERS=true
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_ID=your-google-analytics-id
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_2FA=true
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+NEXT_PUBLIC_ENABLE_DEBUG=false
+
+# API Configuration
+API_RATE_LIMIT=100
+API_TIMEOUT=30000
+
+# Security Configuration
+JWT_SECRET=your-jwt-secret-key
+ENCRYPTION_KEY=your-encryption-key
+
+# Database (if using external database)
+DATABASE_URL=your-database-url
+REDIS_URL=your-redis-url

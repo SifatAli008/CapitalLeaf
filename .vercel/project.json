@@ -1,1 +1,11 @@
-{"projectId":"prj_De3cGA6JkKs90PaSswIgX0TRl1Of","orgId":"team_9eEABLbyiHLdJRpp2L5GTlZF","projectName":"capital-leaf"}
+{
+  "orgId": "your-org-id",
+  "projectId": "your-project-id",
+  "settings": {
+    "buildCommand": "cd frontend && npm install && npm run build",
+    "outputDirectory": "frontend/.next",
+    "installCommand": "cd frontend && npm install",
+    "devCommand": "cd frontend && npm run dev",
+    "framework": "nextjs"
+  }
+}
