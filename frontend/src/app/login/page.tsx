@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
     
     try {
       console.log('Login attempt with device info:', deviceInfo);
-      const result = await login(formData.username, formData.password, deviceInfo);
+      const result = await login(formData.username, formData.password, deviceInfo || undefined);
       console.log('Login result:', result);
       
       if (result.success) {
