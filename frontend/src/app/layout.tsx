@@ -12,7 +12,9 @@ export const metadata: Metadata = {
   title: "CapitalLeaf - Zero Trust Security Framework",
   description: "Professional fintech security platform with Zero Trust Access Control",
   icons: {
-    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Ctext x='5' y='15' font-family='Arial' font-size='14' fill='%234a5568'%3ECapital%3C/text%3E%3Ctext x='45' y='15' font-family='Brush Script MT' font-size='14' fill='%233182ce'%3ELeaf%3C/text%3E%3C/svg%3E"
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   }
 };
 
@@ -23,6 +25,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Prevent extension conflicts */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        {/* Ensure favicon is loaded from correct location */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning={true}>
         <AuthProvider>
           {children}

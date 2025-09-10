@@ -9,7 +9,7 @@ import { Shield, Eye, EyeOff, AlertCircle, Lock, User, ArrowRight, CreditCard, T
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { login, isLoading, isAuthenticated, requires2FA } = useAuth();
+  const { login, isLoading, isAuthenticated, requires2FA, pendingUser, reset2FA } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -17,48 +17,69 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberDevice, setRememberDevice] = useState(false);
   const [error, setError] = useState('');
-  const [deviceInfo, setDeviceInfo] = useState<any>(null);
+  const [deviceInfo, setDeviceInfo] = useState<Record<string, unknown> | null>(null);
+  const [hasRedirected, setHasRedirected] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset 2FA state if there's no pending user
+  useEffect(() => {
+    if (requires2FA && !pendingUser) {
+      console.log('Login page: Resetting 2FA state - no pending user');
+      reset2FA();
+    }
+  }, [requires2FA, pendingUser, reset2FA]);
 
   useEffect(() => {
-    console.log('Login page useEffect triggered:', { isAuthenticated, requires2FA });
-    if (isAuthenticated) {
-      console.log('Login page: User is authenticated, redirecting to dashboard');
+    console.log('Login page useEffect triggered:', { isAuthenticated, requires2FA, pendingUser, hasRedirected });
+    if (isAuthenticated && !requires2FA) {
+      console.log('Login page: User is authenticated and 2FA not required, redirecting to dashboard');
       router.push('/dashboard');
-    } else if (requires2FA) {
-      console.log('Login page: 2FA required, redirecting to verification page');
+    } else if (requires2FA && pendingUser && !isAuthenticated && !hasRedirected) {
+      console.log('Login page: 2FA required with pending user, redirecting to verification page');
+      setHasRedirected(true);
       router.push('/verify-2fa');
     }
-  }, [isAuthenticated, requires2FA, router]);
+  }, [isAuthenticated, requires2FA, pendingUser, hasRedirected, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting) {
+      return; // Prevent multiple submissions
+    }
+    
     setError('');
+    setHasRedirected(false); // Reset redirect state
+    setIsSubmitting(true);
 
     if (!formData.username || !formData.password) {
       setError('Please enter both username and password');
+      setIsSubmitting(false);
       return;
     }
 
     if (!deviceInfo) {
       setError('Device analysis in progress, please wait...');
+      setIsSubmitting(false);
       return;
     }
 
-    console.log('Login page: Attempting login with username:', formData.username);
-    const result = await login(formData.username, formData.password, deviceInfo);
-    console.log('Login result:', result);
-    if (result.success) {
-      console.log('Login successful, checking 2FA requirement');
-      // Check if 2FA is required after login
-      if (result.requires2FA) {
-        console.log('2FA required, redirecting to verification page');
-        router.push('/verify-2fa');
+    try {
+      console.log('Login page: Attempting login with username:', formData.username);
+      const result = await login(formData.username, formData.password, deviceInfo);
+      console.log('Login result:', result);
+      if (result.success) {
+        console.log('Login successful, checking 2FA requirement');
+        // The useEffect will handle the redirect based on the auth state
+        // No need to manually redirect here
       } else {
-        console.log('No 2FA required, redirecting to dashboard');
-        router.push('/dashboard');
+        setError('Login failed. Please check your credentials.');
       }
-    } else {
-      setError('Login failed. Please check your credentials.');
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -73,13 +94,14 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-900 via-green-800 to-indigo-900 p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-1/2 gradient-dark p-12 flex-col justify-between">
         <div>
           <CapitalLeafLogo 
             size="large" 
             subtitle="Secure Financial Technology"
             animated={true}
             variant="light"
+            showSubtitle={true}
           />
           <div className="mt-8 space-y-6">
             <div className="flex items-center space-x-3 text-green-100">
@@ -217,10 +239,10 @@ const LoginPage: React.FC = () => {
 
             <button
               type="submit"
-              disabled={isLoading || !deviceInfo}
+              disabled={isLoading || isSubmitting || !deviceInfo}
               className="w-full bg-gradient-to-r from-green-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-green-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg"
             >
-              {isLoading ? (
+              {(isLoading || isSubmitting) ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   <span>Signing In...</span>
@@ -236,7 +258,7 @@ const LoginPage: React.FC = () => {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <button
                 onClick={() => router.push('/register')}
                 className="text-green-600 hover:text-green-700 font-semibold transition-colors"

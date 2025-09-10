@@ -112,17 +112,10 @@ const loginSchema = Joi.object({
 
 // MFA verification schema
 const mfaSchema = Joi.object({
-  sessionId: Joi.string()
+  username: Joi.string()
     .required()
     .messages({
-      'any.required': 'Session ID is required'
-    }),
-  method: Joi.string()
-    .valid('sms', 'email', 'totp', 'push')
-    .required()
-    .messages({
-      'any.only': 'Invalid MFA method',
-      'any.required': 'MFA method is required'
+      'any.required': 'Username is required'
     }),
   code: Joi.string()
     .length(6)

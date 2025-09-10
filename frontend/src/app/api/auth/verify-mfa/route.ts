@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, method, code } = await request.json();
+    const { username, code } = await request.json();
 
-    if (!sessionId || !method || !code) {
+    if (!username || !code) {
       return NextResponse.json(
-        { success: false, message: 'Session ID, method, and code are required' },
+        { success: false, message: 'Username and code are required' },
         { status: 400 }
       );
     }
@@ -18,9 +18,40 @@ export async function POST(request: NextRequest) {
 
     // For demo purposes, accept any 6-digit code
     if (code && code.length === 6) {
+      // Create a mock session and user data for successful 2FA completion
+      const mockAccessToken = `mock_token_${username}_${Date.now()}`;
+      const mockUser = {
+        id: username,
+        username,
+        email: username.includes('@') ? username : `${username}@example.com`
+      };
+      const mockSession = {
+        sessionId: `session_${username}_${Date.now()}`,
+        riskScore: 0.1, // Lower risk score after successful 2FA
+        timestamp: new Date().toISOString(),
+        requiresMFA: false, // 2FA completed
+        mfaMethods: [],
+        deviceTrusted: true,
+        behavioralAnomaly: { detected: false, anomalies: [], confidence: 0 },
+        riskFactors: {
+          device: 0.0,
+          location: 0.0,
+          transaction: 0.0,
+          time: 0.0,
+          network: 0.0,
+          velocity: 0.0
+        },
+        recommendations: []
+      };
+
       return NextResponse.json({
         success: true,
-        message: 'MFA verification successful'
+        message: 'MFA verification successful',
+        tokens: {
+          accessToken: mockAccessToken
+        },
+        user: mockUser,
+        session: mockSession
       });
     } else {
       return NextResponse.json(

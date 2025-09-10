@@ -3,7 +3,7 @@ import { hasUser2FAEnabled, getUsersWith2FA } from '@/lib/2fa-store';
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password, userContext } = await request.json();
+    const { username, password } = await request.json();
 
     if (!username || !password) {
       return NextResponse.json(
@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
         },
         message: 'Authentication successful - 2FA required'
       });
-    } else {
-      console.log(`Login API: User "${username}" does not have 2FA enabled - allowing direct login`);
     }
+    
+    console.log(`Login API: User "${username}" does not have 2FA enabled - allowing direct login`);
     
     const mockSession = {
       sessionId: `session_${username}_${Date.now()}`,

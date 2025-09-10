@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
 import DeviceFingerprint from '@/components/DeviceFingerprint';
-import { UserPlus, Eye, EyeOff, AlertCircle, CheckCircle, Mail, User, Lock, ArrowRight, Shield, CreditCard, TrendingUp } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle, Mail, User, Lock, ArrowRight, Shield, CreditCard, TrendingUp } from 'lucide-react';
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
@@ -22,7 +22,7 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [deviceInfo, setDeviceInfo] = useState<any>(null);
+  const [deviceInfo, setDeviceInfo] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -91,13 +91,14 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-blue-100 flex">
       {/* Left Side - Benefits */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-900 via-blue-800 to-indigo-900 p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-1/2 gradient-dark p-12 flex-col justify-between">
         <div>
           <CapitalLeafLogo 
             size="large" 
             subtitle="Join the Future of Finance"
             animated={true}
             variant="light"
+            showSubtitle={true}
           />
           <div className="mt-8 space-y-6">
             <div className="flex items-center space-x-3 text-green-100">

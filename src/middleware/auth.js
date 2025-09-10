@@ -1,5 +1,5 @@
 const { verifyToken, extractTokenFromHeader } = require('../utils/jwt');
-const User = require('../models/User');
+// const User = require('../models/User'); // Commented out for demo mode
 
 /**
  * Authentication middleware
@@ -17,7 +17,16 @@ const authenticate = async (req, res, next) => {
     }
 
     const decoded = verifyToken(token);
-    const user = await User.findById(decoded.userId).select('-password');
+    
+    // Demo mode: Create mock user from token
+    const user = {
+      _id: decoded.userId,
+      username: decoded.username,
+      email: decoded.email,
+      role: decoded.role,
+      isActive: true,
+      mfaEnabled: false
+    };
     
     if (!user) {
       return res.status(401).json({
@@ -68,7 +77,15 @@ const optionalAuth = async (req, res, next) => {
     
     if (token) {
       const decoded = verifyToken(token);
-      const user = await User.findById(decoded.userId).select('-password');
+      // Demo mode: Create mock user from token
+      const user = {
+        _id: decoded.userId,
+        username: decoded.username,
+        email: decoded.email,
+        role: decoded.role,
+        isActive: true,
+        mfaEnabled: false
+      };
       
       if (user && user.isActive) {
         req.user = user;

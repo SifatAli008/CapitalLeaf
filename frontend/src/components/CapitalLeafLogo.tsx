@@ -2,14 +2,20 @@ import React from 'react';
 
 interface CapitalLeafLogoProps {
   variant?: 'default' | 'light' | 'dark';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'small' | 'medium' | 'large';
   className?: string;
+  showSubtitle?: boolean;
+  subtitle?: string;
+  animated?: boolean;
 }
 
 const CapitalLeafLogo: React.FC<CapitalLeafLogoProps> = ({ 
   variant = 'default', 
   size = 'md', 
-  className = '' 
+  className = '',
+  showSubtitle = false,
+  subtitle = "Dynamic Defense with Microservice Isolation",
+  animated = false
 }) => {
   const getTextColors = () => {
     switch (variant) {
@@ -34,10 +40,13 @@ const CapitalLeafLogo: React.FC<CapitalLeafLogoProps> = ({
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
+      case 'small':
         return 'text-lg';
       case 'md':
+      case 'medium':
         return 'text-2xl';
       case 'lg':
+      case 'large':
         return 'text-3xl';
       case 'xl':
         return 'text-4xl';
@@ -50,13 +59,20 @@ const CapitalLeafLogo: React.FC<CapitalLeafLogoProps> = ({
   const sizeClass = getSizeClasses();
 
   return (
-    <div className={`flex items-center ${className}`}>
-      <span className={`${sizeClass} font-bold logo-text ${colors.capital}`}>
-        Capital
-      </span>
-      <span className={`${sizeClass} font-bold logo-text ${colors.leaf}`}>
-        Leaf
-      </span>
+    <div className={`flex flex-col items-center ${className}`}>
+      <div className={`flex items-center ${animated ? 'logo-fadeIn' : ''}`}>
+        <span className={`${sizeClass} font-bold logo-text ${colors.capital}`}>
+          Capital
+        </span>
+        <span className={`${sizeClass} font-bold logo-text ${colors.leaf}`}>
+          Leaf
+        </span>
+      </div>
+      {showSubtitle && (
+        <p className={`text-xs mt-1 ${variant === 'light' ? 'text-gray-300' : 'text-gray-600'} ${animated ? 'logo-fadeIn' : ''}`}>
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 };

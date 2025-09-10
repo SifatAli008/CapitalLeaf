@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 interface DeviceInfo {
   fingerprint: string;
@@ -18,14 +18,10 @@ interface DeviceFingerprintProps {
 }
 
 const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGenerated }) => {
-  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null);
+  const [, setDeviceInfo] = useState<DeviceInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    generateFingerprint();
-  }, []);
-
-  const generateFingerprint = async () => {
+  const generateFingerprint = useCallback(async () => {
     try {
       const canvas = getCanvasFingerprint();
       const webgl = getWebGLFingerprint();
@@ -61,7 +57,11 @@ const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGene
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [onFingerprintGenerated]);
+
+  useEffect(() => {
+    generateFingerprint();
+  }, [generateFingerprint]);
 
   const getCanvasFingerprint = (): string => {
     try {
@@ -80,12 +80,12 @@ const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGene
       ctx.fillText('CapitalLeaf Security', 4, 45);
       
       return canvas.toDataURL();
-    } catch (e) {
+    } catch {
       return 'canvas_error';
     }
   };
 
-  const getWebGLFingerprint = (): any => {
+  const getWebGLFingerprint = (): Record<string, unknown> => {
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -105,12 +105,12 @@ const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGene
         shadingLanguageVersion: webglContext.getParameter(webglContext.SHADING_LANGUAGE_VERSION),
         extensions: webglContext.getSupportedExtensions()
       };
-    } catch (e) {
+    } catch {
       return { error: 'webgl_error' };
     }
   };
 
-  const hashFingerprint = (data: any): string => {
+  const hashFingerprint = (data: Record<string, unknown>): string => {
     const str = JSON.stringify(data);
     let hash = 0;
     for (let i = 0; i < str.length; i++) {

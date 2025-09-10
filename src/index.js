@@ -12,7 +12,7 @@ const ThreatIntelligenceService = require('./services/threatIntelligence');
 
 // Import database and utilities
 // const connectDB = require('./config/database');
-const User = require('./models/User');
+// const User = require('./models/User'); // Commented out for demo mode
 const { generateTokenPair } = require('./utils/jwt');
 const { authenticate } = require('./middleware/auth');
 const { 
@@ -28,7 +28,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Connect to database (optional for demo)
-// connectDB();
+// For demo purposes, we'll use in-memory storage
+console.log('🚀 Starting CapitalLeaf in demo mode (no database required)');
+
+// Demo user storage (in-memory)
+const demoUsers = new Map();
+const demoSessions = new Map();
 
 // Initialize available services
 const threatIntelligence = new ThreatIntelligenceService();
@@ -114,6 +119,11 @@ app.get('/health', (req, res) => {
       server: 'running'
     }
   });
+});
+
+// Favicon endpoint to prevent 500 errors
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // No content, but successful response
 });
 
 // Helper functions for authentication
@@ -295,14 +305,45 @@ app.post('/api/auth/register', authLimiter, validate(registrationSchema), async 
 // MFA verification endpoint
 app.post('/api/auth/verify-mfa', authLimiter, validate(mfaSchema), async (req, res) => {
   try {
-    const { code } = req.body;
+    const { username, code } = req.body;
     
     // In production, verify the MFA code against the user's MFA secret
     // For demo purposes, accept any 6-digit code
     if (code && code.length === 6 && /^\d+$/.test(code)) {
+      // Create a mock session and user data for successful 2FA completion
+      const mockAccessToken = `mock_token_${username}_${Date.now()}`;
+      const mockUser = {
+        id: username,
+        username,
+        email: username.includes('@') ? username : `${username}@example.com`
+      };
+      const mockSession = {
+        sessionId: `session_${username}_${Date.now()}`,
+        riskScore: 0.1, // Lower risk score after successful 2FA
+        timestamp: new Date().toISOString(),
+        requiresMFA: false, // 2FA completed
+        mfaMethods: [],
+        deviceTrusted: true,
+        behavioralAnomaly: { detected: false, anomalies: [], confidence: 0 },
+        riskFactors: {
+          device: 0.0,
+          location: 0.0,
+          transaction: 0.0,
+          time: 0.0,
+          network: 0.0,
+          velocity: 0.0
+        },
+        recommendations: []
+      };
+
       res.json({
         success: true,
-        message: 'MFA verification successful'
+        message: 'MFA verification successful',
+        tokens: {
+          accessToken: mockAccessToken
+        },
+        user: mockUser,
+        session: mockSession
       });
     } else {
       res.status(400).json({
