@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
 import DeviceFingerprint from '@/components/DeviceFingerprint';
-import { Shield, Eye, EyeOff, AlertCircle, Lock, User, ArrowRight, CreditCard, TrendingUp } from 'lucide-react';
+import { Shield, Eye, EyeOff, AlertCircle, Lock, User, ArrowRight, CreditCard, TrendingUp, CheckCircle, Star } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -48,35 +48,27 @@ const LoginPage: React.FC = () => {
       return; // Prevent multiple submissions
     }
     
-    setError('');
-    setHasRedirected(false); // Reset redirect state
     setIsSubmitting(true);
-
-    if (!formData.username || !formData.password) {
-      setError('Please enter both username and password');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!deviceInfo) {
-      setError('Device analysis in progress, please wait...');
-      setIsSubmitting(false);
-      return;
-    }
-
+    setError('');
+    
     try {
-      console.log('Login page: Attempting login with username:', formData.username);
+      console.log('Login attempt with device info:', deviceInfo);
       const result = await login(formData.username, formData.password, deviceInfo);
       console.log('Login result:', result);
+      
       if (result.success) {
-        console.log('Login successful, checking 2FA requirement');
-        // The useEffect will handle the redirect based on the auth state
-        // No need to manually redirect here
+        if (result.requiresMFA) {
+          console.log('Login successful, 2FA required');
+          // The useEffect will handle the redirect to verify-2fa
+        } else {
+          console.log('Login successful, redirecting to dashboard');
+          router.push('/dashboard');
+        }
       } else {
-        setError('Login failed. Please check your credentials.');
+        setError(result.message || 'Login failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (err) {
+      console.error('Login error:', err);
       setError('Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -92,10 +84,15 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-dark p-12 flex-col justify-between">
-        <div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 p-12 flex-col justify-between relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+        </div>
+        
+        <div className="relative z-10">
           <CapitalLeafLogo 
             size="large" 
             subtitle="Secure Financial Technology"
@@ -103,37 +100,42 @@ const LoginPage: React.FC = () => {
             variant="light"
             showSubtitle={true}
           />
-          <div className="mt-8 space-y-6">
-            <div className="flex items-center space-x-3 text-green-100">
-              <div className="p-2 bg-green-700 rounded-lg">
-                <Shield size={20} />
+          <div className="mt-12 space-y-8">
+            <div className="flex items-start space-x-4 text-blue-100">
+              <div className="p-3 bg-blue-700/50 rounded-xl backdrop-blur-sm">
+                <Shield size={24} />
               </div>
               <div>
-                <h3 className="font-semibold">Bank-Grade Security</h3>
-                <p className="text-sm text-green-200">256-bit encryption & zero-trust architecture</p>
+                <h3 className="font-bold text-lg mb-2">Bank-Grade Security</h3>
+                <p className="text-blue-200 leading-relaxed">256-bit encryption, zero-trust architecture, and SOC 2 Type II compliance</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3 text-green-100">
-              <div className="p-2 bg-green-700 rounded-lg">
-                <TrendingUp size={20} />
+            <div className="flex items-start space-x-4 text-blue-100">
+              <div className="p-3 bg-blue-700/50 rounded-xl backdrop-blur-sm">
+                <TrendingUp size={24} />
               </div>
               <div>
-                <h3 className="font-semibold">Real-Time Monitoring</h3>
-                <p className="text-sm text-green-200">AI-powered threat detection & risk assessment</p>
+                <h3 className="font-bold text-lg mb-2">AI-Powered Monitoring</h3>
+                <p className="text-blue-200 leading-relaxed">Real-time threat detection and behavioral analytics for proactive security</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3 text-green-100">
-              <div className="p-2 bg-green-700 rounded-lg">
-                <CreditCard size={20} />
+            <div className="flex items-start space-x-4 text-blue-100">
+              <div className="p-3 bg-blue-700/50 rounded-xl backdrop-blur-sm">
+                <CreditCard size={24} />
               </div>
               <div>
-                <h3 className="font-semibold">Financial Compliance</h3>
-                <p className="text-sm text-green-200">SOC 2, PCI DSS, and regulatory compliance</p>
+                <h3 className="font-bold text-lg mb-2">Financial Compliance</h3>
+                <p className="text-blue-200 leading-relaxed">PCI DSS, GDPR, and regulatory compliance built-in from day one</p>
               </div>
             </div>
           </div>
         </div>
-        <div className="text-green-200 text-sm">
+        
+        <div className="relative z-10 text-blue-200 text-sm">
+          <div className="flex items-center space-x-2 mb-2">
+            <CheckCircle size={16} />
+            <span className="font-medium">Trusted by 500+ Financial Institutions</span>
+          </div>
           <p>© 2024 CapitalLeaf. All rights reserved.</p>
         </div>
       </div>
@@ -144,28 +146,28 @@ const LoginPage: React.FC = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
             <CapitalLeafLogo 
-              size="medium" 
+              size="large" 
               subtitle="Secure Login"
               animated={true}
             />
           </div>
 
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your CapitalLeaf account</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">Welcome Back</h1>
+            <p className="text-gray-600 text-lg">Sign in to your CapitalLeaf account</p>
           </div>
 
           <DeviceFingerprint onFingerprintGenerated={setDeviceInfo} />
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
                   Username or Email
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User size={18} className="text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <User size={20} className="text-gray-400" />
                   </div>
                   <input
                     type="text"
@@ -173,7 +175,7 @@ const LoginPage: React.FC = () => {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white text-gray-900 placeholder-gray-500"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 text-lg"
                     placeholder="Enter your username or email"
                     required
                   />
@@ -181,12 +183,12 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock size={18} className="text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock size={20} className="text-gray-400" />
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -194,14 +196,14 @@ const LoginPage: React.FC = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white text-gray-900 placeholder-gray-500"
+                    className="w-full pl-12 pr-14 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 text-lg"
                     placeholder="Enter your password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -216,35 +218,35 @@ const LoginPage: React.FC = () => {
                   id="rememberDevice"
                   checked={rememberDevice}
                   onChange={(e) => setRememberDevice(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="rememberDevice" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="rememberDevice" className="ml-3 block text-sm font-medium text-gray-700">
                   Trust this device
                 </label>
               </div>
               <button
                 type="button"
-                className="text-sm text-green-600 hover:text-green-700 font-medium"
+                className="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
               >
                 Forgot password?
               </button>
             </div>
 
             {error && (
-              <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl border border-red-200">
+              <div className="flex items-center space-x-3 text-red-600 bg-red-50 p-4 rounded-xl border-2 border-red-200">
                 <AlertCircle size={20} />
-                <span className="text-sm">{error}</span>
+                <span className="text-sm font-medium">{error}</span>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading || isSubmitting || !deviceInfo}
-              className="w-full bg-gradient-to-r from-green-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-green-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-3 shadow-xl hover:shadow-2xl"
             >
               {(isLoading || isSubmitting) ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                   <span>Signing In...</span>
                 </>
               ) : (
@@ -257,11 +259,11 @@ const LoginPage: React.FC = () => {
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-gray-600">
               Don&apos;t have an account?{' '}
               <button
                 onClick={() => router.push('/register')}
-                className="text-green-600 hover:text-green-700 font-semibold transition-colors"
+                className="text-blue-600 hover:text-blue-700 font-bold transition-colors"
               >
                 Create one here
               </button>
@@ -269,15 +271,20 @@ const LoginPage: React.FC = () => {
           </div>
 
           {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-indigo-50 rounded-xl border border-green-200">
-            <h4 className="text-sm font-semibold text-green-800 mb-2 flex items-center">
-              <Shield size={16} className="mr-2" />
+          <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
+            <h4 className="text-sm font-bold text-blue-800 mb-3 flex items-center">
+              <Shield size={18} className="mr-2" />
               Demo Access
             </h4>
-            <div className="text-xs text-green-700 space-y-1">
-              <p><strong>Username:</strong> demo@capitalleaf.com</p>
-              <p><strong>Password:</strong> SecurePass123!</p>
-              <p className="text-green-600 italic mt-2">Or use any credentials to test the system</p>
+            <div className="text-sm text-blue-700 space-y-2">
+              <div className="flex justify-between">
+                <span className="font-semibold">Username:</span>
+                <span className="font-mono">demo@capitalleaf.com</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Password:</span>
+                <span className="font-mono">SecurePass123!</span>
+              </div>
             </div>
           </div>
         </div>
