@@ -68,6 +68,42 @@ const userSchema = new mongoose.Schema({
     lastUsed: {
       type: Date,
       default: Date.now
+    },
+    registeredAt: {
+      type: Date,
+      default: Date.now
+    },
+    deviceType: {
+      type: String,
+      enum: ['desktop', 'mobile', 'tablet', 'unknown'],
+      default: 'unknown'
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    }
+  }],
+  maxDevices: {
+    type: Number,
+    default: 2
+  },
+  activeSessions: [{
+    sessionId: String,
+    deviceFingerprint: String,
+    deviceName: String,
+    loginTime: {
+      type: Date,
+      default: Date.now
+    },
+    lastActivity: {
+      type: Date,
+      default: Date.now
+    },
+    ipAddress: String,
+    userAgent: String,
+    isActive: {
+      type: Boolean,
+      default: true
     }
   }],
   mfaEnabled: {
@@ -156,23 +192,128 @@ userSchema.methods.updateLastLogin = function() {
   });
 };
 
-// Instance method to add device fingerprint
-userSchema.methods.addDeviceFingerprint = function(fingerprint, deviceName, isTrusted = false) {
+// Instance method to add device fingerprint with device limit enforcement
+userSchema.methods.addDeviceFingerprint = function(fingerprint, deviceName, deviceType = 'unknown', isTrusted = false) {
   const existingDevice = this.deviceFingerprints.find(device => device.fingerprint === fingerprint);
   
   if (existingDevice) {
     existingDevice.lastUsed = Date.now();
     existingDevice.isTrusted = isTrusted || existingDevice.isTrusted;
+    existingDevice.deviceName = deviceName;
+    existingDevice.deviceType = deviceType;
+    existingDevice.isActive = true;
   } else {
+    // Check device limit
+    const activeDevices = this.deviceFingerprints.filter(device => device.isActive);
+    if (activeDevices.length >= this.maxDevices) {
+      throw new Error(`Device limit exceeded. Maximum ${this.maxDevices} devices allowed.`);
+    }
+    
     this.deviceFingerprints.push({
       fingerprint,
       deviceName,
+      deviceType,
       isTrusted,
-      lastUsed: Date.now()
+      lastUsed: Date.now(),
+      registeredAt: Date.now(),
+      isActive: true
     });
   }
   
   return this.save();
+};
+
+// Instance method to remove device
+userSchema.methods.removeDevice = function(fingerprint) {
+  const deviceIndex = this.deviceFingerprints.findIndex(device => device.fingerprint === fingerprint);
+  if (deviceIndex !== -1) {
+    this.deviceFingerprints[deviceIndex].isActive = false;
+    // Also remove any active sessions for this device
+    this.activeSessions = this.activeSessions.filter(session => session.deviceFingerprint !== fingerprint);
+  }
+  return this.save();
+};
+
+// Instance method to get active devices
+userSchema.methods.getActiveDevices = function() {
+  return this.deviceFingerprints.filter(device => device.isActive);
+};
+
+// Instance method to check if device is registered and active
+userSchema.methods.isDeviceRegistered = function(fingerprint) {
+  const device = this.deviceFingerprints.find(device => 
+    device.fingerprint === fingerprint && device.isActive
+  );
+  return !!device;
+};
+
+// Instance method to add active session
+userSchema.methods.addActiveSession = function(sessionData) {
+  const { sessionId, deviceFingerprint, deviceName, ipAddress, userAgent } = sessionData;
+  
+  // Remove any existing session for this device
+  this.activeSessions = this.activeSessions.filter(session => session.deviceFingerprint !== deviceFingerprint);
+  
+  // Check if we're at the device limit and this is a new device
+  if (!this.isDeviceRegistered(deviceFingerprint)) {
+    const activeDevices = this.getActiveDevices();
+    if (activeDevices.length >= this.maxDevices) {
+      throw new Error(`Device limit exceeded. Maximum ${this.maxDevices} devices allowed.`);
+    }
+  }
+  
+  this.activeSessions.push({
+    sessionId,
+    deviceFingerprint,
+    deviceName,
+    loginTime: Date.now(),
+    lastActivity: Date.now(),
+    ipAddress,
+    userAgent,
+    isActive: true
+  });
+  
+  return this.save();
+};
+
+// Instance method to remove active session
+userSchema.methods.removeActiveSession = function(sessionId) {
+  this.activeSessions = this.activeSessions.filter(session => session.sessionId !== sessionId);
+  return this.save();
+};
+
+// Instance method to update session activity
+userSchema.methods.updateSessionActivity = function(sessionId) {
+  const session = this.activeSessions.find(s => s.sessionId === sessionId);
+  if (session) {
+    session.lastActivity = Date.now();
+  }
+  return this.save();
+};
+
+// Instance method to get active sessions count
+userSchema.methods.getActiveSessionsCount = function() {
+  return this.activeSessions.filter(session => session.isActive).length;
+};
+
+// Instance method to check if user can login (device limit check)
+userSchema.methods.canLogin = function(deviceFingerprint) {
+  // If device is already registered and active, allow login
+  if (this.isDeviceRegistered(deviceFingerprint)) {
+    return { canLogin: true, reason: 'Device is registered' };
+  }
+  
+  // Check if we can register a new device
+  const activeDevices = this.getActiveDevices();
+  if (activeDevices.length < this.maxDevices) {
+    return { canLogin: true, reason: 'Can register new device' };
+  }
+  
+  return { 
+    canLogin: false, 
+    reason: `Device limit exceeded. Maximum ${this.maxDevices} devices allowed.`,
+    activeDevices: activeDevices.length
+  };
 };
 
 // Static method to find user by username or email

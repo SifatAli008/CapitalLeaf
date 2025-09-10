@@ -18,6 +18,8 @@ interface Session {
   requiresMFA: boolean;
   mfaMethods: string[];
   deviceTrusted: boolean;
+  requiresDeviceRegistration?: boolean;
+  deviceLimitExceeded?: boolean;
   behavioralAnomaly: {
     detected: boolean;
     anomalies: string[];
@@ -35,6 +37,16 @@ interface Session {
   timestamp: string;
 }
 
+interface Device {
+  fingerprint: string;
+  deviceName: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet' | 'unknown';
+  isTrusted: boolean;
+  lastUsed: string;
+  registeredAt: string;
+  isActive: boolean;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
@@ -42,7 +54,11 @@ interface AuthContextType {
   requires2FA: boolean;
   pendingUser: User | null;
   isLoading: boolean;
-  login: (username: string, password: string, deviceInfo?: Record<string, unknown>) => Promise<{ success: boolean; message: string; requiresMFA?: boolean }>;
+  devices: Device[];
+  deviceCount: number;
+  maxDevices: number;
+  canAddDevice: boolean;
+  login: (username: string, password: string, deviceInfo?: Record<string, unknown>) => Promise<{ success: boolean; message: string; requiresMFA?: boolean; deviceLimitExceeded?: boolean }>;
   register: (userData: any) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   complete2FA: (code: string) => Promise<{ success: boolean; message: string }>;
@@ -50,6 +66,15 @@ interface AuthContextType {
   reset2FA: () => void;
   checkAuthStatus: () => void;
   completeLoginAfter2FADisable: () => void;
+  // Device management methods
+  loadDevices: () => Promise<void>;
+  removeDevice: (deviceFingerprint: string) => Promise<{ success: boolean; message: string }>;
+  updateDevice: (deviceFingerprint: string, deviceName: string) => Promise<{ success: boolean; message: string }>;
+  trustDevice: (deviceFingerprint: string, mfaCode?: string) => Promise<{ success: boolean; message: string }>;
+  registerDevice: (deviceName: string, deviceInfo: Record<string, unknown>) => Promise<{ success: boolean; message: string; requiresMFA?: boolean }>;
+  // Session management methods
+  invalidateSessions: (reason: string, deviceFingerprint?: string) => Promise<{ success: boolean; message: string }>;
+  getActiveSessions: () => Promise<{ success: boolean; sessions: any[] }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,6 +98,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [requires2FA, setRequires2FA] = useState(false);
   const [pendingUser, setPendingUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [deviceCount, setDeviceCount] = useState(0);
+  const [maxDevices, setMaxDevices] = useState(2);
+  const [canAddDevice, setCanAddDevice] = useState(true);
 
   // Auto-logout configuration
   const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
@@ -339,9 +368,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
+  // Load devices when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadDevices();
+    }
+  }, [isAuthenticated, user]);
+
   const login = async (username: string, password: string, deviceInfo?: Record<string, unknown>) => {
     setIsLoading(true);
     try {
+      console.log('AuthContext: Making login request with:', { username, deviceInfo });
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -350,7 +388,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ username, password, userContext: deviceInfo }),
       });
 
+      console.log('AuthContext: Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('AuthContext: Response error:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
       const data = await response.json();
+      console.log('AuthContext: Response data:', data);
 
       if (data.success) {
         if (data.session?.requiresMFA) {
@@ -390,8 +437,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           inactivityTimeoutRef.current = inactivityTimeout;
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      
+      // Try to extract error details from the error message
+      if (error.message && error.message.includes('HTTP 400:')) {
+        try {
+          const errorData = JSON.parse(error.message.split('HTTP 400: ')[1]);
+          return { 
+            success: false, 
+            message: errorData.message || 'Login failed',
+            errorCode: errorData.errorCode,
+            ...errorData
+          };
+        } catch (parseError) {
+          console.error('Error parsing error response:', parseError);
+        }
+      }
+      
       return { success: false, message: 'Network error occurred' };
     }
     setIsLoading(false);
@@ -430,6 +493,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     try {
       console.log('complete2FA: Making API call to verify-mfa');
+      
+      // Get device fingerprint from cookies or generate one
+      const deviceFingerprint = Cookies.get('deviceFingerprint') || `device_${Date.now()}`;
+      
       const response = await fetch('/api/auth/verify-mfa', {
         method: 'POST',
         headers: {
@@ -437,7 +504,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         body: JSON.stringify({ 
           username: pendingUser.username, 
-          code 
+          code,
+          deviceFingerprint,
+          trustDevice: true // Trust device after successful MFA
         }),
       });
 
@@ -509,6 +578,181 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Device management methods
+  const loadDevices = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`/api/auth/devices?userId=${user.id}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setDevices(data.devices);
+        setDeviceCount(data.deviceCount);
+        setMaxDevices(data.maxDevices);
+        setCanAddDevice(data.canAddDevice);
+      }
+    } catch (error) {
+      console.error('Error loading devices:', error);
+    }
+  };
+
+  const removeDevice = async (deviceFingerprint: string) => {
+    try {
+      const response = await fetch('/api/auth/devices', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          deviceFingerprint, 
+          userId: user?.id 
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await loadDevices(); // Reload devices
+      }
+      
+      return { success: data.success, message: data.message };
+    } catch (error) {
+      console.error('Error removing device:', error);
+      return { success: false, message: 'Network error occurred' };
+    }
+  };
+
+  const updateDevice = async (deviceFingerprint: string, deviceName: string) => {
+    try {
+      const response = await fetch('/api/auth/devices', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          deviceFingerprint, 
+          deviceName,
+          userId: user?.id 
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await loadDevices(); // Reload devices
+      }
+      
+      return { success: data.success, message: data.message };
+    } catch (error) {
+      console.error('Error updating device:', error);
+      return { success: false, message: 'Network error occurred' };
+    }
+  };
+
+  const trustDevice = async (deviceFingerprint: string, mfaCode?: string) => {
+    try {
+      const response = await fetch('/api/auth/trust-device', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          deviceFingerprint, 
+          userId: user?.id,
+          mfaCode 
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await loadDevices(); // Reload devices
+      }
+      
+      return { success: data.success, message: data.message };
+    } catch (error) {
+      console.error('Error trusting device:', error);
+      return { success: false, message: 'Network error occurred' };
+    }
+  };
+
+  const registerDevice = async (deviceName: string, deviceInfo: Record<string, unknown>) => {
+    try {
+      const response = await fetch('/api/auth/register-device', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          sessionId: session?.sessionId || `session_${Date.now()}`,
+          deviceName, 
+          deviceInfo,
+          userId: user?.id || 'demo_user' // Fallback for demo purposes
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await loadDevices(); // Reload devices
+      }
+      
+      return { 
+        success: data.success, 
+        message: data.message,
+        requiresMFA: data.requiresMFA 
+      };
+    } catch (error) {
+      console.error('Error registering device:', error);
+      return { success: false, message: 'Network error occurred' };
+    }
+  };
+
+  // Session management methods
+  const invalidateSessions = async (reason: string, deviceFingerprint?: string) => {
+    try {
+      const response = await fetch('/api/auth/session-invalidate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId: user?.id,
+          reason,
+          deviceFingerprint 
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && reason === 'device_limit_exceeded') {
+        // If sessions were invalidated due to device limit, reload devices
+        await loadDevices();
+      }
+      
+      return { success: data.success, message: data.message };
+    } catch (error) {
+      console.error('Error invalidating sessions:', error);
+      return { success: false, message: 'Network error occurred' };
+    }
+  };
+
+  const getActiveSessions = async () => {
+    try {
+      const response = await fetch(`/api/auth/session-invalidate?userId=${user?.id}`);
+      const data = await response.json();
+      
+      return { 
+        success: data.success, 
+        sessions: data.sessions || [] 
+      };
+    } catch (error) {
+      console.error('Error getting active sessions:', error);
+      return { success: false, sessions: [] };
+    }
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     user,
@@ -516,6 +760,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     requires2FA,
     pendingUser,
     isLoading,
+    devices,
+    deviceCount,
+    maxDevices,
+    canAddDevice,
     login,
     register,
     logout,
@@ -524,6 +772,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     reset2FA,
     checkAuthStatus,
     completeLoginAfter2FADisable,
+    loadDevices,
+    removeDevice,
+    updateDevice,
+    trustDevice,
+    registerDevice,
+    invalidateSessions,
+    getActiveSessions,
   };
 
   return (

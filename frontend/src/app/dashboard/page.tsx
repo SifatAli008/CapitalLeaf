@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
+import DeviceManagement from '@/components/DeviceManagement';
 import { 
   Shield, 
   Activity, 
@@ -23,15 +24,17 @@ import {
   Filter,
   Download,
   Calendar,
-  Cpu
+  Cpu,
+  Smartphone
 } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {
   const router = useRouter();
-  const { user, session, isAuthenticated, logout } = useAuth();
+  const { user, session, isAuthenticated, logout, devices, deviceCount, maxDevices } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showDeviceManagement, setShowDeviceManagement] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -74,11 +77,11 @@ const DashboardPage: React.FC = () => {
       borderColor: 'border-green-200'
     },
     {
-      title: 'Active Sessions',
-      value: '3',
-      change: 'Stable',
+      title: 'Registered Devices',
+      value: `${deviceCount}/${maxDevices}`,
+      change: 'Active',
       trend: 'stable',
-      icon: Users,
+      icon: Smartphone,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200'
@@ -142,25 +145,25 @@ const DashboardPage: React.FC = () => {
 
   const quickActions = [
     {
+      title: 'Device Management',
+      description: 'Manage registered devices',
+      icon: Smartphone, 
+      color: 'bg-blue-500',
+      action: () => setShowDeviceManagement(true)
+    },
+    {
       title: 'Security Scan',
       description: 'Run comprehensive security check',
-      icon: Shield, 
-      color: 'bg-blue-500',
+      icon: Shield,
+      color: 'bg-green-500',
       action: () => console.log('Security scan')
     },
     {
       title: 'View Reports',
       description: 'Access security analytics',
       icon: BarChart3,
-      color: 'bg-green-500',
-      action: () => console.log('View reports')
-    },
-    {
-      title: 'Manage Users',
-      description: 'User access management',
-      icon: Users,
       color: 'bg-purple-500',
-      action: () => console.log('Manage users')
+      action: () => console.log('View reports')
     },
     {
       title: 'Settings',
@@ -395,6 +398,15 @@ const DashboardPage: React.FC = () => {
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
+      )}
+
+      {/* Device Management Modal */}
+      {showDeviceManagement && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <DeviceManagement onClose={() => setShowDeviceManagement(false)} />
+          </div>
+        </div>
       )}
     </div>
   );

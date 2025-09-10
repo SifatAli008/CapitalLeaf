@@ -20,8 +20,11 @@ interface DeviceFingerprintProps {
 const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGenerated }) => {
   const [, setDeviceInfo] = useState<DeviceInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasGenerated, setHasGenerated] = useState(false);
 
   const generateFingerprint = useCallback(async () => {
+    if (hasGenerated) return; // Prevent multiple generations
+    
     try {
       const canvas = getCanvasFingerprint();
       const webgl = getWebGLFingerprint();
@@ -51,17 +54,18 @@ const DeviceFingerprint: React.FC<DeviceFingerprintProps> = ({ onFingerprintGene
       };
 
       setDeviceInfo(deviceInfo);
+      setHasGenerated(true);
       onFingerprintGenerated?.(deviceInfo);
     } catch (error) {
       console.error('Error generating device fingerprint:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [onFingerprintGenerated]);
+  }, []); // Remove dependencies to prevent re-creation
 
   useEffect(() => {
     generateFingerprint();
-  }, [generateFingerprint]);
+  }, []); // Empty dependency array - only run once
 
   const getCanvasFingerprint = (): string => {
     try {

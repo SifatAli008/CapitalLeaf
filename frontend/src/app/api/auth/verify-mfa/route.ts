@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getUserDevices, trustDeviceInUser } from '@/lib/mock-data-store';
+
+interface VerifyMFARequest {
+  username: string;
+  code: string;
+  deviceFingerprint?: string;
+  trustDevice?: boolean;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, code } = await request.json();
+    const { username, code, deviceFingerprint, trustDevice }: VerifyMFARequest = await request.json();
 
     if (!username || !code) {
       return NextResponse.json(
@@ -18,6 +26,12 @@ export async function POST(request: NextRequest) {
 
     // For demo purposes, accept any 6-digit code
     if (code && code.length === 6) {
+      // Handle device trust if device fingerprint is provided
+      if (deviceFingerprint && trustDevice) {
+        trustDeviceInUser(username, deviceFingerprint);
+        console.log(`MFA Verification API: Device ${deviceFingerprint} trusted for user ${username}`);
+      }
+
       // Create a mock session and user data for successful 2FA completion
       const mockAccessToken = `mock_token_${username}_${Date.now()}`;
       const mockUser = {
@@ -31,10 +45,10 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
         requiresMFA: false, // 2FA completed
         mfaMethods: [],
-        deviceTrusted: true,
+        deviceTrusted: deviceFingerprint ? true : false, // Trust device if fingerprint provided
         behavioralAnomaly: { detected: false, anomalies: [], confidence: 0 },
         riskFactors: {
-          device: 0.0,
+          device: deviceFingerprint ? 0.0 : 0.1,
           location: 0.0,
           transaction: 0.0,
           time: 0.0,

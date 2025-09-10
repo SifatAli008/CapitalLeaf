@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CapitalLeafLogo from '@/components/CapitalLeafLogo';
@@ -20,6 +20,8 @@ const LoginPage: React.FC = () => {
   const [deviceInfo, setDeviceInfo] = useState<Record<string, unknown> | null>(null);
   const [hasRedirected, setHasRedirected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deviceInfoLoading, setDeviceInfoLoading] = useState(true);
+  const [deviceLimitError, setDeviceLimitError] = useState<string | null>(null);
 
   // Reset 2FA state if there's no pending user
   useEffect(() => {
@@ -48,12 +50,18 @@ const LoginPage: React.FC = () => {
       return; // Prevent multiple submissions
     }
     
+    if (!deviceInfo) {
+      setError('Device analysis in progress, please wait...');
+      return;
+    }
+    
     setIsSubmitting(true);
     setError('');
+    setDeviceLimitError(null);
     
     try {
       console.log('Login attempt with device info:', deviceInfo);
-      const result = await login(formData.username, formData.password, deviceInfo || undefined);
+      const result = await login(formData.username, formData.password, deviceInfo);
       console.log('Login result:', result);
       
       if (result.success) {
@@ -65,11 +73,31 @@ const LoginPage: React.FC = () => {
           router.push('/dashboard');
         }
       } else {
-        setError(result.message || 'Login failed. Please try again.');
+        // Check if it's a device limit error
+        if (result.errorCode === 'DEVICE_LIMIT_EXCEEDED') {
+          setDeviceLimitError(result.message || 'Device limit exceeded');
+          setError(''); // Clear regular error
+        } else {
+          setError(result.message || 'Login failed. Please try again.');
+          setDeviceLimitError(null); // Clear device limit error
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
-      setError('Login failed. Please try again.');
+      
+      // Check if it's a device limit error from the error message
+      if (err.message && err.message.includes('DEVICE_LIMIT_EXCEEDED')) {
+        try {
+          const errorData = JSON.parse(err.message.split('HTTP 400: ')[1]);
+          setDeviceLimitError(errorData.message || 'Device limit exceeded');
+          setError(''); // Clear regular error
+        } catch {
+          setError('Login failed. Please try again.');
+        }
+      } else {
+        setError('Login failed. Please try again.');
+        setDeviceLimitError(null); // Clear device limit error
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -159,7 +187,19 @@ const LoginPage: React.FC = () => {
             <p className="text-gray-600 text-lg">Sign in to your CapitalLeaf account</p>
           </div>
 
-          <DeviceFingerprint onFingerprintGenerated={setDeviceInfo} />
+          <DeviceFingerprint onFingerprintGenerated={useCallback((info) => {
+            console.log('Login page: Device info received:', info);
+            setDeviceInfo(info);
+            setDeviceInfoLoading(false);
+          }, [])} />
+          
+          {/* Fallback device info generation */}
+          {deviceInfoLoading && (
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+              <p className="text-sm text-gray-600">Analyzing your device for security...</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
@@ -241,15 +281,52 @@ const LoginPage: React.FC = () => {
               </div>
             )}
 
+            {deviceLimitError && (
+              <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
+                <div className="flex items-start space-x-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold text-yellow-800 mb-1">Device Limit Reached</h4>
+                    <p className="text-sm text-yellow-700 mb-3">{deviceLimitError}</p>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          // Navigate to dashboard to manage devices
+                          router.push('/dashboard');
+                        }}
+                        className="text-sm bg-yellow-600 text-white px-3 py-1.5 rounded-md hover:bg-yellow-700 transition-colors"
+                      >
+                        Manage Devices
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDeviceLimitError(null);
+                          setError('');
+                        }}
+                        className="text-sm text-yellow-700 hover:text-yellow-800 underline"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={isLoading || isSubmitting || !deviceInfo}
+              disabled={isLoading || isSubmitting || deviceInfoLoading || !deviceInfo}
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-3 shadow-xl hover:shadow-2xl"
             >
               {(isLoading || isSubmitting) ? (
                 <>
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                   <span>Signing In...</span>
+                </>
+              ) : deviceInfoLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                  <span>Analyzing Device...</span>
                 </>
               ) : (
                 <>
