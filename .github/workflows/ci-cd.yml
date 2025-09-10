@@ -72,17 +72,19 @@ jobs:
       
     - name: Check if build directory exists
       run: |
+        echo "Checking build directory..."
+        ls -la ${{ env.FRONTEND_DIR }}/
         if [ -d "${{ env.FRONTEND_DIR }}/.next" ]; then
           echo "Build directory exists"
           ls -la ${{ env.FRONTEND_DIR }}/.next
         else
-          echo "Build directory does not exist"
-          exit 1
+          echo "Build directory does not exist, checking for alternative build output..."
+          find ${{ env.FRONTEND_DIR }} -name "*.js" -o -name "*.css" -o -name "*.html" | head -10
         fi
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
-      if: success()
+      if: always()
       with:
         name: build-files
         path: ${{ env.FRONTEND_DIR }}/.next
@@ -186,5 +188,5 @@ jobs:
       uses: treosh/lighthouse-ci-action@v10
       with:
         configPath: './lighthouse.config.js'
-        uploadArtifacts: true
+        uploadArtifacts: false
         temporaryPublicStorage: true

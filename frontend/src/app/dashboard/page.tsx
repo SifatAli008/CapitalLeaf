@@ -10,29 +10,19 @@ import {
   Users, 
   AlertTriangle, 
   CheckCircle, 
-  Smartphone,
-  Lock,
   LogOut,
   Settings,
   User,
   BarChart3,
-  Eye,
-  EyeOff,
   TrendingUp,
   Menu,
   X,
-  ArrowRight,
   RefreshCw,
   Target,
-  PieChart,
   Bell,
-  Search,
   Filter,
   Download,
   Calendar,
-  Clock,
-  Globe,
-  Database,
   Key,
   Cpu,
   Zap
@@ -157,7 +147,7 @@ const DashboardPage: React.FC = () => {
     {
       title: 'Security Scan',
       description: 'Run comprehensive security check',
-      icon: Shield,
+      icon: Shield, 
       color: 'bg-blue-500',
       action: () => console.log('Security scan')
     },
@@ -207,7 +197,7 @@ const DashboardPage: React.FC = () => {
               </button>
               <CapitalLeafLogo variant="default" size="lg" animated={true} />
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <button className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 relative">
                 <Bell size={20} />
@@ -240,14 +230,14 @@ const DashboardPage: React.FC = () => {
         <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 lg:hidden">
             <CapitalLeafLogo variant="default" size="md" />
-            <button
+                <button 
               onClick={() => setSidebarOpen(false)}
               className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-            >
+                >
               <X size={20} />
-            </button>
+                </button>
           </div>
-          
+
           <nav className="mt-8 px-4">
             <div className="space-y-2">
               {sidebarItems.map((item) => (
@@ -273,13 +263,13 @@ const DashboardPage: React.FC = () => {
           <div className="p-6">
             {/* Page Header */}
             <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
+                        <div className="flex items-center justify-between">
+                          <div>
                   <h1 className="text-3xl font-bold text-gray-900">Security Dashboard</h1>
                   <p className="text-gray-600 mt-2">Monitor and manage your security posture</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <button
+                    <button
                     onClick={refreshData}
                     disabled={refreshing}
                     className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
@@ -290,10 +280,10 @@ const DashboardPage: React.FC = () => {
                   <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     <Download size={16} />
                     <span>Export</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+                    </button>
+                  </div>
+                    </div>
+                  </div>
 
             {/* Security Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -309,13 +299,13 @@ const DashboardPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div>
+                      <div>
                     <div className="text-2xl font-bold text-gray-900 mb-1">{metric.value}</div>
                     <div className="text-sm text-gray-600">{metric.title}</div>
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Recent Activity */}
@@ -326,7 +316,7 @@ const DashboardPage: React.FC = () => {
                     <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
                       View All
                     </button>
-                  </div>
+                        </div>
                   <div className="space-y-4">
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
@@ -348,7 +338,7 @@ const DashboardPage: React.FC = () => {
               </div>
 
               {/* Quick Actions */}
-              <div>
+                          <div>
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
                   <div className="space-y-4">
@@ -369,8 +359,8 @@ const DashboardPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
+                    </div>
+                  </div>
 
             {/* Security Overview Chart */}
             <div className="mt-8">
@@ -386,17 +376,17 @@ const DashboardPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                  <div className="text-center">
+                    <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                      <div className="text-center">
                     <TrendingUp size={48} className="text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">Security trends chart</p>
                     <p className="text-sm text-gray-500">Visual representation of security metrics</p>
                   </div>
                 </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </main>
+          </main>
       </div>
 
       {/* Mobile Sidebar Overlay */}
